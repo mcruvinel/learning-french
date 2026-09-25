@@ -440,6 +440,39 @@ Study reference:
 
 ---
 
+### TASK-017 — Backup do progresso em .json (entre aparelhos)
+
+Status: [x]
+Priority: P1
+Area: frontend / product
+Depends on: TASK-004
+
+Goal:
+O progresso vive no localStorage de cada navegador: notebook, iPhone (e até
+Safari × app instalado) mostram coisas diferentes. Pedido do usuário: salvar um
+.json ao concluir a aula e poder retomar noutro aparelho. Sem servidor (DEC-012).
+
+Acceptance criteria:
+- "Concluir aula" também salva o backup, no mesmo toque (iPhone: folha de
+  compartilhar → Salvar em Arquivos; computador: download)
+- Home: "Importar progresso (.json)" em destaque num aparelho vazio, discreto
+  com progresso; "Salvar backup" sob demanda
+- importar junta por aula: vale a versão atualizada mais recentemente
+- arquivo estranho é recusado sem tocar no progresso
+- testado em jsdom e em WebKit (dois contextos = dois aparelhos)
+
+Result:
+- `src/progress/backup.ts` (+10 testes), `src/lib/saveFile.ts`,
+  `src/progress/saveBackup.ts`, `src/home/BackupActions.tsx`, recap atualizado;
+  3 testes de integração; QA WebKit: backup salvo ao concluir e importado num
+  segundo contexto, nas duas larguras.
+- Não verificado no iPhone real (item 11 do checklist da TASK-013).
+
+Study reference:
+- MEMORY.md#task-017
+
+---
+
 ## Fora da v0.1 (só entra se o aprendizado pedir)
 
 Ideias registradas para não se perderem. Nenhuma está comprometida. A regra:

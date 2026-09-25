@@ -50,6 +50,8 @@ co-autoria ("Deploy Now").
 Sessão 2026-09-25:
 - TASK-014 — Revisão crítica do francês e do design da Aula 1
 - TASK-015 — Service worker consistente entre releases + id de build visível
+- TASK-016 — Referências pessoais removidas do app, docs e histórico
+- TASK-017 — Backup do progresso em .json (salvo ao concluir, importável na Home)
 - TASK-010 — preflight do deploy; deploy feito pelo usuário e observado
 
 Sessão 2026-09-24:
@@ -70,7 +72,7 @@ Deployment status: **publicado e observado** em 2026-09-25 — runs `36132278468
 ## Validation
 
 Build: ✅ `npm ci` limpo + `npm run build` (305 kB JS / 96 kB gzip)
-Tests: ✅ 34 testes (Vitest + jsdom)
+Tests: ✅ 47 testes (Vitest + jsdom)
 Lint: ✅ oxlint, sem avisos
 Typecheck: ✅ `tsc -b` estrito
 Mobile: ✅ WebKit, perfil iPhone 13 (390px) e 320px, 24 passos, sem overflow, sem erros de JS. ⚠️ iPhone físico não testado.
@@ -124,6 +126,8 @@ Main stack: React 19 · TypeScript estrito · Vite 8 · react-router (hash) · V
 - Notas Markdown com métricas reais; seções na ordem pedida.
 - Build de produção funciona servido em subpath (`/learning-french/`).
 - Service worker controla a página e serve o app com o servidor parado.
+- Backup .json: salvo ao concluir (share sheet no perfil iPhone), importado num
+  segundo contexto de navegador vazio, restaura a aula concluída.
 - Ciclo de release simulado (build A instalado → build B publicado): B carrega
   online, o bundle de A sai do cache, um 404 cai no shell em cache, B abre offline.
 - `npm ci` + `npm run verify` limpos (simulação do CI).
@@ -482,6 +486,40 @@ Cópias antigas do repositório público (forks, caches) podem ter sobrado.
 Revisit when:
 Nunca para datas; o nome pode mudar à vontade (DEC-004 torna o build
 independente do nome).
+
+### DEC-012 — Progresso entre aparelhos por arquivo .json, sem sincronização
+
+Date: 2026-09-25
+Related tasks: TASK-017
+
+Context:
+O usuário percebeu que notebook e iPhone mostram progressos diferentes e pediu
+um .json "salvo no diretório e lido sempre que o app inicia".
+
+Options considered:
+1. Gravar/ler um arquivo automaticamente numa pasta (repo, iCloud, disco).
+2. Exportar/importar um .json com um toque.
+3. Sincronização real (backend, conta ou GitHub API com token).
+4. Nada: estudar só no iPhone.
+
+Decision:
+Opção 2. Salvar faz parte de "Concluir aula"; importar é um botão na Home,
+em destaque num aparelho vazio. Conflito: vale a aula atualizada mais
+recentemente (escolha do usuário).
+
+Why:
+A opção 1 não existe na web: uma página não lê nem grava pastas sem o usuário
+escolher o arquivo (File System Access só existe no Chrome de computador; OPFS
+é privado de cada navegador; gravar no repo exige um token exposto). A 3 viola
+"sem backend, sem segredos". A 2 é o mais próximo do pedido dentro das regras.
+
+Tradeoffs:
+Importar é manual (um toque + escolher o arquivo). Backups ficam desatualizados
+se você não salvar de novo. "Mais recente vence" é por aula inteira, não por
+exercício.
+
+Revisit when:
+Importar a cada troca de aparelho virar atrito real no uso.
 
 ---
 
@@ -973,6 +1011,7 @@ O que o headless não prova. Marque conforme for fazendo e anote o que falhar:
 - [ ] 8. Terminar a Aula 1 inteira, marcar frases difíceis e escrever a anotação.
 - [ ] 9. Notas → **Copiar Markdown** → colar numa nota nova no Obsidian (testar também Compartilhar).
 - [ ] 10. Modo avião → abrir pelo ícone: a Home aparece com o progresso; entrar na aula funciona.
+- [ ] 11. "Concluir aula e salvar backup" abre a folha de compartilhar → Salvar em Arquivos (iCloud Drive); no notebook, "Importar progresso (.json)" com esse arquivo mostra a Aula 1 concluída.
 
 Ao terminar, relatar: o que funcionou, o que foi difícil, o que pareceu
 desnecessário. A próxima iteração nasce desse relato.
@@ -1137,6 +1176,63 @@ Repositório público com datas e destinos pessoais no nome do app, na Home e no
   depois das específicas, senão viram frases erradas ("criar `learning-french`
   como o C05 previa").
 
+## TASK-017 — Backup do progresso em .json
+
+Status: completed
+Date: 2026-09-25
+Files changed:
+- src/progress/backup.ts (+ backup.test.ts)
+- src/progress/saveBackup.ts, src/lib/saveFile.ts
+- src/home/BackupActions.tsx, src/home/HomePage.tsx, src/home/Home.css
+- src/lesson/steps/RecapStepView.tsx
+- src/app/App.test.tsx, scripts/qa-mobile.mjs
+
+### Problem
+
+localStorage é por navegador: notebook, iPhone e até Safari × app instalado no
+mesmo iPhone têm progressos separados, e não há backup se o armazenamento for
+apagado.
+
+### Solution
+
+- **Formato** (`backup.ts`): `{ app: 'learning-french', kind: 'progress-backup',
+  exportedAt, progress: ProgressState }`, JSON indentado, nome
+  `learning-french-progresso-AAAA-MM-DD.json`.
+- **Leitura** (`readBackup`): aceita o formato acima ou um `ProgressState` puro;
+  passa pelo mesmo `parseProgress` defensivo do storage; sem aulas = recusado.
+- **Junção** (`mergeProgress`): por aula, vence o `updatedAt` mais recente;
+  aula que só existe de um lado é mantida.
+- **Salvar** (`saveFile.ts`): em tela de toque com `navigator.canShare({files})`
+  usa a folha de compartilhar (no iPhone: "Salvar em Arquivos"); senão, download
+  por `<a download>`. Precisa ser chamado direto do toque (gesto do usuário).
+- **Concluir** (`RecapStepView`): no mesmo clique aplica `completeLesson` e salva
+  o backup do estado já concluído; mostra o resultado e oferece salvar de novo.
+- **Importar** (`BackupActions`): `<input type=file>` escondido, acionado pelo
+  botão; mensagem de sucesso/erro com `role=status`.
+
+### Key concepts
+
+- Web Share API Level 2 (compartilhar arquivos) e ativação por gesto do usuário
+- Limites de acesso a arquivos na web (File System Access, OPFS)
+- Merge last-writer-wins por registro
+
+### Validation
+
+- 10 testes unitários (round-trip, formatos aceitos/recusados, merge nos dois
+  sentidos) e 3 de integração (concluir gera backup concluído; importar num
+  aparelho vazio restaura; arquivo estranho é recusado).
+- QA WebKit (perfil iPhone, que de fato expõe `canShare` com arquivos):
+  `navigator.share` interceptado captura o .json ao concluir; um segundo
+  contexto de navegador vazio importa e mostra "Notas da Aula 1". Nas duas larguras.
+- **Não verificado** no iPhone real: folha de compartilhar e seletor do app Arquivos.
+
+### Things learned
+
+- O pedido literal ("arquivo lido sozinho ao iniciar") esbarra no modelo de
+  segurança da web; a restrição técnica mudou o fluxo, não o objetivo.
+- No perfil de iPhone o WebKit toma o caminho do share sheet, então testar só
+  o download teria testado o caminho errado.
+
 ---
 
 ## Evidence for the article
@@ -1156,4 +1252,7 @@ Repositório público com datas e destinos pessoais no nome do app, na Home e no
   escrita pelo próprio agente, contradizia bonjour/s'il na mesma aula (TASK-014).
 - **Restrição de uso real → engenharia**: Wi-Fi de hotel com portal de login levou
   a validar respostas no service worker (TASK-015).
+- **Necessidade do usuário × limite da plataforma**: "salvar num .json lido ao
+  iniciar" virou exportar/importar com um toque, porque a web não lê pastas
+  sozinha e sincronizar exigiria servidor (TASK-017, DEC-012).
 - Tamanho: ~2.900 linhas em `src/` (incl. testes e conteúdo); 3 dependências de runtime.

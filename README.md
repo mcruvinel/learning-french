@@ -83,7 +83,12 @@ resposta fora do intervalo, cenário sem exatamente uma opção certa).
 Uma chave de localStorage: `learning-french:v1:progress` (formato em
 `src/progress/types.ts`). Só `src/lib/storage.ts` toca o localStorage. Dados
 malformados são descartados na menor granularidade possível
-(`src/progress/parse.ts`). O progresso existe **só neste aparelho**.
+(`src/progress/parse.ts`). O progresso existe **só em cada navegador** (notebook,
+iPhone e até Safari × app instalado são separados).
+
+Para levar o progresso a outro aparelho: "Concluir aula" salva um backup
+`.json` (`src/progress/backup.ts`); na Home, "Importar progresso (.json)" junta
+o arquivo ao progresso local — vale a versão mais recente de cada aula.
 
 ## Desenvolvimento
 

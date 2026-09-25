@@ -17,6 +17,10 @@ Git, em [`MEMORY.md`](./MEMORY.md) e em [`docs/DECISIONS.md`](./docs/DECISIONS.m
 - Instalável na tela de início do iPhone; reabre offline após a primeira visita.
 - Rodapé e notas mostram a versão com o commit do build (ex.: `0.1.0+741c253`).
 
+- Backup do progresso em .json: salvo ao concluir a aula (no iPhone, pela
+  folha de compartilhar → Salvar em Arquivos) e importável na Home para
+  continuar em outro aparelho. Vale o mais recente de cada aula.
+
 ### Alterado
 
 - O app passa a se chamar “Learning French”. Progresso salvo em versões
