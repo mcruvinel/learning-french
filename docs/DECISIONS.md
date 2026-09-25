@@ -3,6 +3,11 @@
 Registro das decisões de produto e técnicas que valem explicar. Detalhes triviais
 de implementação não entram aqui.
 
+> **A partir de 2026-09-24**, novas decisões são registradas em
+> [`MEMORY.md` → Decision log](../MEMORY.md#decision-log) (`DEC-001`…), junto
+> com o registro de estudo de cada task. Este arquivo guarda as decisões da
+> fundação (C00).
+
 Formato:
 
 ```md
@@ -117,7 +122,10 @@ nova uma mudança de código.
 
 ### Resultado
 
-Pipeline implementado no C02.
+Revisado em 2026-09-24 (MEMORY.md, DEC-002): a Aula 1 interativa foi escrita
+como conteúdo TypeScript tipado; o pipeline de Markdown do ChatGPT fica adiado
+até existir o formato real de uma aula gerada. O princípio (conteúdo versionado
+no Git, sem CMS) continua valendo.
 
 ### Nota para o artigo
 

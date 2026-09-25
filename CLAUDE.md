@@ -63,18 +63,20 @@ npm run verify   # typecheck + lint + testes + build de produção
 
 ## Protocolo de sessão de desenvolvimento
 
-Sessões numeradas `C00`, `C01`, `C02`… Em cada sessão:
+Desde 2026-09-24 o trabalho é organizado em **tasks com ID** (`TASK-001`…) em
+`TODO.md`, e o conhecimento do projeto vive em `MEMORY.md` (estado atual, log de
+decisões `DEC-xxx` e um registro de estudo por task). As sessões `C00`–`C07`
+originais estão mapeadas no fim do `TODO.md`. Em cada sessão:
 
-1. Ler `CLAUDE.md`.
-2. Ler `TODO.md`.
-3. Ler o código relevante.
-4. Trabalhar **apenas** na sessão atual — não avançar escopo de sessões futuras.
-5. Rodar a verificação.
-6. Atualizar o status da sessão em `TODO.md`.
-7. Atualizar documentação quando realmente necessário.
-8. Fazer um commit limpo.
-9. Reportar: o que foi implementado, decisões técnicas, arquivos alterados,
-   verificação feita, limitações conhecidas, e a próxima sessão exata.
+1. Ler `CLAUDE.md`, `TODO.md` e o topo de `MEMORY.md`.
+2. Ler o código relevante.
+3. Trabalhar **apenas** nas tasks combinadas — não avançar escopo futuro.
+4. Marcar a task `[~]` ao começar; `[x]` só depois de checar o aceite.
+5. Rodar a verificação (`npm run verify`).
+6. Atualizar `TODO.md` e o registro da task em `MEMORY.md`.
+7. Fazer commits limpos, um por unidade de trabalho.
+8. Reportar: o que foi implementado, decisões, arquivos, verificação,
+   limitações conhecidas e a próxima ação.
 
-Decisões de produto/técnicas relevantes vão para `docs/DECISIONS.md`.
+Decisões relevantes vão para `MEMORY.md#decision-log`.
 Mudanças visíveis ao usuário vão para `CHANGELOG.md`.

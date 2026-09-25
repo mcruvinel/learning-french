@@ -1,6 +1,6 @@
 # Learning French — TODO
 
-Last updated: 2026-09-24 23:10
+Last updated: 2026-09-24 23:30
 
 Regras do projeto em [`CLAUDE.md`](./CLAUDE.md). O que aconteceu e por quê está
 em [`MEMORY.md`](./MEMORY.md).
@@ -21,7 +21,7 @@ v0.1 — Aula 1 usável + deploy no GitHub Pages
 
 ### TASK-001 — Inspeção do repositório e documentos operacionais
 
-Status: [~]
+Status: [x]
 Priority: P0
 Area: docs
 Depends on: none
@@ -37,6 +37,11 @@ Acceptance criteria:
 - `TODO.md` reestruturado em tasks com ID, preservando o roadmap C00–C07
 - `MEMORY.md` criado com estado atual, restrições e log de decisões
 
+Result:
+- Repositório no estado C00, árvore limpa, sem trabalho não commitado.
+- Remote inexistente; repo vazio `mcruvinel/learning-french` encontrado no GitHub e adotado (DEC-001).
+- Commit `85324b4`.
+
 Study reference:
 - MEMORY.md#task-001
 
@@ -44,7 +49,7 @@ Study reference:
 
 ### TASK-002 — Modelo de conteúdo de aula (tipos + validação)
 
-Status: [ ]
+Status: [x]
 Priority: P0
 Area: learning / frontend
 Depends on: TASK-001
@@ -62,6 +67,11 @@ Acceptance criteria:
 - registro de aulas (`src/lessons/index.ts`) — adicionar a Aula 2 = adicionar
   um arquivo + uma linha
 
+Result:
+- `src/lessons/types.ts` + `index.ts`; 8 tipos de passo em união discriminada.
+- 3 testes de integridade em `lessons.test.ts`.
+- Commit `24afb1f`.
+
 Study reference:
 - MEMORY.md#task-002
 
@@ -69,7 +79,7 @@ Study reference:
 
 ### TASK-003 — Conteúdo da Aula 1: « Bonjour, je m'appelle Matheus »
 
-Status: [ ]
+Status: [x]
 Priority: P0
 Area: learning
 Depends on: TASK-002
@@ -87,6 +97,10 @@ Acceptance criteria:
   (boulangerie)
 - conteúdo revisado quanto a correção do francês
 
+Result:
+- 12 frases, 24 passos, 2 cenários (boulangerie, escola de esqui). Commit `24afb1f`.
+- Francês revisado pelo Claude; **não revisado por falante nativo** (ver MEMORY.md TASK-003).
+
 Study reference:
 - MEMORY.md#task-003
 
@@ -94,7 +108,7 @@ Study reference:
 
 ### TASK-004 — Persistência local de progresso
 
-Status: [ ]
+Status: [x]
 Priority: P0
 Area: frontend
 Depends on: TASK-002
@@ -109,6 +123,10 @@ Acceptance criteria:
   `localStorage` indisponível
 - lógica de progresso em funções puras testadas
 
+Result:
+- `src/lib/storage.ts`, `src/progress/*`. 14 testes (transições, parse de dados malformados, métricas).
+- Commit `39ab58f`.
+
 Study reference:
 - MEMORY.md#task-004
 
@@ -116,7 +134,7 @@ Study reference:
 
 ### TASK-005 — Player de aula e verificação de respostas
 
-Status: [ ]
+Status: [x]
 Priority: P0
 Area: frontend / learning
 Depends on: TASK-002, TASK-004
@@ -133,6 +151,10 @@ Acceptance criteria:
 - cenário com escolhas, feedback e nova tentativa
 - teste de integração percorrendo passos e verificando persistência
 
+Result:
+- Player + 8 views de passo; `answers.ts` com 7 testes; 6 testes de integração do fluxo.
+- Commit `f3714ed` (checagem de resposta em `39ab58f`).
+
 Study reference:
 - MEMORY.md#task-005
 
@@ -140,7 +162,7 @@ Study reference:
 
 ### TASK-006 — Home e shell mobile
 
-Status: [ ]
+Status: [x]
 Priority: P0
 Area: frontend
 Depends on: TASK-004
@@ -154,6 +176,9 @@ Acceptance criteria:
 - funciona a partir de 320px, sem overflow horizontal, alvos ≥ 44px
 - dark mode intencional (tokens existentes, tipografia editorial)
 
+Result:
+- Home verificada em WebKit a 390px e 320px, sem overflow. Commit `f3714ed`.
+
 Study reference:
 - MEMORY.md#task-006
 
@@ -161,7 +186,7 @@ Study reference:
 
 ### TASK-007 — Áudio com síntese de voz do navegador
 
-Status: [ ]
+Status: [x]
 Priority: P1
 Area: frontend / learning
 Depends on: TASK-005
@@ -175,6 +200,9 @@ Acceptance criteria:
 - sem suporte: botão some e a aula continua funcionando
 - nenhuma dependência nova
 
+Result:
+- `src/lib/speech.ts` + `ListenButtons`. Botões aparecem no WebKit do Playwright; **o som em si não foi ouvido** (headless). Validar no iPhone (TASK-013). Commit `f3714ed`.
+
 Study reference:
 - MEMORY.md#task-007
 
@@ -182,7 +210,7 @@ Study reference:
 
 ### TASK-008 — Exportação Markdown para Obsidian
 
-Status: [ ]
+Status: [x]
 Priority: P0
 Area: frontend / learning
 Depends on: TASK-004
@@ -196,6 +224,10 @@ Acceptance criteria:
 - ações: Copiar Markdown e Baixar `.md`
 - acessível pela Home depois de concluir
 
+Result:
+- Gerador puro com 4 testes; tela de notas com Copiar / Baixar / Compartilhar.
+- Copiar/baixar/compartilhar não verificados num iPhone real (TASK-013). Commits `cde06e4`, `f3714ed`.
+
 Study reference:
 - MEMORY.md#task-008
 
@@ -203,7 +235,7 @@ Study reference:
 
 ### TASK-009 — PWA mínimo (manifest, ícones, offline básico)
 
-Status: [ ]
+Status: [x]
 Priority: P1
 Area: PWA
 Depends on: TASK-006
@@ -217,6 +249,11 @@ Acceptance criteria:
 - service worker escrito à mão, pequeno, sem dependência
 - comportamento offline realmente verificado (ou documentado como não verificado)
 
+Result:
+- Manifest, ícones PNG, `public/sw.js`.
+- Offline verificado em WebKit: com o servidor parado, reload e deep link funcionam.
+- Instalação na tela de início do iPhone **não verificada** (TASK-013). Commit `00525a1`.
+
 Study reference:
 - MEMORY.md#task-009
 
@@ -224,7 +261,7 @@ Study reference:
 
 ### TASK-010 — Deploy no GitHub Pages via Actions
 
-Status: [ ]
+Status: [!]
 Priority: P0
 Area: deployment
 Depends on: TASK-009
@@ -237,6 +274,22 @@ Acceptance criteria:
 - workflow mínimo: build + verify + deploy-pages
 - remote configurado, push feito, Pages habilitado, deploy verificado por HTTP
 
+Implementation notes:
+- `base: './'` no Vite: o build não depende do nome do repositório (DEC-004).
+- Build verificado localmente servido em `/learning-french/`.
+
+Result:
+- Workflow criado (`0a3c0be`), YAML válido, `npm ci` + `npm run verify` limpos numa cópia isolada, remote `origin` configurado.
+- **Bloqueado:** um hook local (`~/.claude/hooks/block-git-push.sh`) proíbe o Claude de enviar commits ao GitHub. Nada foi enviado e o Pages não foi habilitado.
+- Para desbloquear, rode você mesmo (5 min):
+  ```sh
+  git push -u origin main
+  gh api -X POST repos/mcruvinel/learning-french/pages -f build_type=workflow
+  gh workflow run deploy.yml
+  gh run watch
+  ```
+  Depois abra https://mcruvinel.github.io/learning-french/ e marque esta task `[x]`.
+
 Study reference:
 - MEMORY.md#task-010
 
@@ -244,7 +297,7 @@ Study reference:
 
 ### TASK-011 — Validação mobile e QA do fluxo completo
 
-Status: [ ]
+Status: [x]
 Priority: P0
 Area: testing
 Depends on: TASK-005, TASK-006, TASK-008
@@ -258,6 +311,10 @@ Acceptance criteria:
 - sem overflow horizontal em 320px e 390px
 - refresh no meio da aula retoma no mesmo passo
 
+Result:
+- `scripts/qa-mobile.mjs`: Aula 1 inteira em WebKit, iPhone 13 (390px) e 320px, recuperação digitada sem acento, refresh no meio (retoma no mesmo passo), conclusão, notas, Home, offline. Todos os checks passaram.
+- Não substitui o iPhone real (teclado, Safari, áudio). Commit `6785783`.
+
 Study reference:
 - MEMORY.md#task-011
 
@@ -265,7 +322,7 @@ Study reference:
 
 ### TASK-012 — README e documentação estável
 
-Status: [ ]
+Status: [x]
 Priority: P1
 Area: docs
 Depends on: TASK-010
@@ -278,8 +335,34 @@ Acceptance criteria:
   conteúdo, onde fica a persistência, papel do TODO.md e do MEMORY.md
 - `CHANGELOG.md` e `docs/DECISIONS.md` atualizados
 
+Result:
+- README, CHANGELOG, `docs/DECISIONS.md` (ponteiro para MEMORY) e protocolo no `CLAUDE.md` atualizados.
+
 Study reference:
 - MEMORY.md#task-012
+
+---
+
+### TASK-013 — Validação no iPhone real
+
+Status: [ ]
+Priority: P0
+Area: testing
+Depends on: TASK-010
+
+Goal:
+Confirmar no aparelho o que o headless não consegue: áudio, teclado, instalação
+e offline no Safari de verdade.
+
+Acceptance criteria:
+- abrir a URL no Safari e fazer a Aula 1 inteira
+- o botão Ouvir produz voz francesa (anotar qual voz / se precisou instalar)
+- o teclado não cobre o campo nem o botão na recuperação
+- Adicionar à Tela de Início; abrir em modo avião depois da primeira visita
+- Copiar Markdown e colar no Obsidian
+
+Study reference:
+- MEMORY.md#task-013
 
 ---
 
@@ -315,6 +398,6 @@ autônoma de 2026-09-24, a pedido do usuário. Mapeamento:
 | C02 — Pipeline Markdown | adiada | "Fora da v0.1"; DEC-002 |
 | C03 — Frases, listening, progresso | parcial | TASK-004, TASK-007 |
 | C04 — Fluxo de revisão | adiada | "Fora da v0.1" |
-| C05 — PWA e GitHub Pages | nesta sessão | TASK-009, TASK-010 |
+| C05 — PWA e GitHub Pages | PWA feito; deploy bloqueado | TASK-009, TASK-010, TASK-013 |
 | C06 — Baseline S01 | adiada | "Fora da v0.1" |
 | C07+ — Iterações por evidência | contínuo | regra geral do backlog |
