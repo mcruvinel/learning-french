@@ -56,7 +56,7 @@ describe('Lesson 1 flow', () => {
     click('Começar')
     click('Continuar') // phrases
     click('Continuar') // pronunciation note
-    click('Bom dia / Olá')
+    click('Olá / Bom dia / Boa tarde')
     expect(screen.getByText('Certo.')).toBeDefined()
     expect(stored().lessons['lesson-01'].results['rec-bonjour']).toEqual({
       kind: 'choice',
