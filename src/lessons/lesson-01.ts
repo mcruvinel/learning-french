@@ -35,7 +35,7 @@ export const lesson01: Lesson = {
       pt: 'Boa noite (ao chegar)',
       tip: '“oi” em francês soa como “uá”. O começo é o mesmo “bon” nasal de Bonjour, e o “r” final também soa.',
       ipa: 'bɔ̃.swaʁ',
-      note: 'Para chegar, a partir do fim da tarde (por volta das 18h). Não é para ir dormir. No inverno já está escuro nesse horário: você vai usar muito.',
+      note: 'Para chegar, a partir do fim da tarde (por volta das 18h). Não é para ir dormir. No inverno, em Paris e em Chamonix, já está escuro nesse horário: você vai usar muito.',
     },
     {
       id: 'au-revoir',

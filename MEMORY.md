@@ -1,8 +1,8 @@
 # Deploy Now
 
-O primeiro deploy já foi feito (2026-09-25). Depois disso o histórico local foi
-reescrito para remover a linha de co-autoria do Claude dos commits (mesmo
-conteúdo, hashes novos). Para publicar o histórico reescrito:
+O histórico local foi reescrito duas vezes depois do primeiro deploy (sem
+co-autoria do Claude; sem referências pessoais — TASK-016). Mesmo conteúdo de
+código, hashes novos. Para publicar:
 
 ```bash
 cd <raiz do repositório>
@@ -13,12 +13,13 @@ curl -sI https://mcruvinel.github.io/learning-french/ | head -1
 ```
 
 - URL pública: https://mcruvinel.github.io/learning-french/
-- Sucesso = run verde (`build` e `deploy`), `HTTP/2 200`, e o rodapé da Home
-  mostra `v0.1.0+<hash>` igual a `git rev-parse --short HEAD`.
-- Depois de confirmar, o backup local pode ser apagado:
-  `git branch -D backup/antes-de-remover-coautor`
+- Sucesso = run verde (`build` e `deploy`), `HTTP/2 200`, título "Learning
+  French" na Home e rodapé `v0.1.0+<hash>` igual a `git rev-parse --short HEAD`.
+- Depois de confirmar, apagar os backups locais (eles ainda contêm o texto antigo):
+  `git branch -D backup/antes-de-remover-coautor backup/antes-de-remover-referencias`
+  e `git update-ref -d refs/original/refs/heads/main`
 
-Releases seguintes: `git push` normal em `main` publica sozinho.
+Releases seguintes: push normal em `main` publica sozinho.
 
 ---
 
@@ -449,6 +450,39 @@ carregada até ser relançado — o rodapé mostra qual build está rodando.
 Revisit when:
 O app passar a ter mais de um bundle (code splitting) ou assets grandes (áudio).
 
+### DEC-011 — Sem referências pessoais no repositório público; a aula mantém as cidades
+
+Date: 2026-09-25
+Related tasks: TASK-016
+
+Context:
+O repositório é público. O nome do app, a linha de subtítulo da Home e os
+documentos expunham detalhes pessoais (datas e destinos) de um plano do usuário.
+
+Options considered:
+1. Remover só do app visível.
+2. Remover do app e dos docs, mantendo as cidades nos cenários da aula.
+3. Remover tudo, inclusive as cidades dos cenários.
+
+Decision:
+Opção 2, aplicada a **todo o histórico** do Git. Nome: "Learning French";
+identificadores `learning-french`. Nenhuma data em lugar nenhum. Os exemplos e
+situações das aulas continuam nas cidades e nos contextos reais de uso — isso é
+requisito de aprendizado, não detalhe.
+
+Why:
+Privacidade num repositório público, sem sacrificar a regra pedagógica de
+treinar nas situações reais.
+
+Tradeoffs:
+A chave do localStorage mudou (`learning-french:v1:progress`): progresso salvo
+na versão publicada anterior se perde (o usuário ainda não tinha feito a aula).
+Cópias antigas do repositório público (forks, caches) podem ter sobrado.
+
+Revisit when:
+Nunca para datas; o nome pode mudar à vontade (DEC-004 torna o build
+independente do nome).
+
 ---
 
 ## Task records
@@ -457,7 +491,7 @@ O app passar a ter mais de um bundle (code splitting) ou assets grandes (áudio)
 
 Status: completed
 Date: 2026-09-24
-Commit: `47e4d52`
+Commit: `bdab8d7`
 Files changed:
 - TODO.md
 - MEMORY.md
@@ -483,7 +517,7 @@ o mapeamento ficou no fim do TODO.md.
 
 Status: completed
 Date: 2026-09-24
-Commit: `43ecf83`
+Commit: `794f37e`
 Files changed:
 - src/lessons/types.ts
 - src/lessons/index.ts
@@ -543,7 +577,7 @@ componentes por aula (cada aula = código).
 
 Status: completed
 Date: 2026-09-24
-Commit: `43ecf83`
+Commit: `794f37e`
 Files changed:
 - src/lessons/lesson-01.ts
 
@@ -593,7 +627,7 @@ ChatGPT para revisar `lesson-01.ts` (especialmente as dicas de pronúncia).
 
 Status: completed
 Date: 2026-09-24
-Commit: `dd81e41`
+Commit: `254410b`
 Files changed:
 - src/lib/storage.ts
 - src/progress/types.ts
@@ -666,7 +700,7 @@ JSON corrompido abre a Home normalmente.
 
 Status: completed
 Date: 2026-09-24
-Commits: `44f4790` (UI), `dd81e41` (answers.ts)
+Commits: `f01899f` (UI), `254410b` (answers.ts)
 Files changed:
 - src/lesson/LessonPage.tsx, stepProps.ts, StepFooter.tsx, Lesson.css
 - src/lesson/steps/*StepView.tsx (8 arquivos)
@@ -721,7 +755,7 @@ Renderizar qualquer aula do modelo como sequência interativa e retomável.
 
 Status: completed
 Date: 2026-09-24
-Commit: `44f4790`
+Commit: `f01899f`
 Files changed:
 - src/home/HomePage.tsx, Home.css, currentLesson.ts
 - src/styles/tokens.css, ui.css; index.html
@@ -748,7 +782,7 @@ WebKit 390px e 320px, sem overflow horizontal (checado em todos os passos).
 
 Status: completed (som não verificado)
 Date: 2026-09-24
-Commit: `44f4790`
+Commit: `f01899f`
 Files changed:
 - src/lib/speech.ts
 - src/components/ListenButtons.tsx
@@ -772,7 +806,7 @@ Files changed:
 
 Status: completed
 Date: 2026-09-24
-Commits: `4367b0a` (gerador), `44f4790` (tela)
+Commits: `1986aad` (gerador), `f01899f` (tela)
 Files changed:
 - src/notes/lessonMarkdown.ts + test
 - src/notes/NotesPage.tsx, Notes.css
@@ -789,7 +823,7 @@ nota diz "Nenhum exercício registrado" — nunca estima.
 Tela: Copiar (`navigator.clipboard`), Baixar (`Blob` + `<a download>`),
 Compartilhar (`navigator.share`, só se existir — útil no iOS para mandar ao Obsidian).
 `__APP_VERSION__` vem do `package.json` via `define` no Vite (desde a
-TASK-015 inclui o commit: `0.1.0+825826f`).
+TASK-015 inclui o commit: `0.1.0+741c253`).
 
 ### Validation
 
@@ -800,7 +834,7 @@ WebKit confere título e métricas na prévia. Copiar/baixar não testados no iP
 
 Status: completed
 Date: 2026-09-24
-Commit: `0c5c9d7`
+Commit: `b994d1e`
 Files changed:
 - public/manifest.webmanifest, public/sw.js, public/*.png, public/favicon.svg
 - index.html, src/pwa/registerServiceWorker.ts, src/main.tsx
@@ -832,10 +866,10 @@ e nunca limpava bundles antigos — ver DEC-010.
 
 Status: completed (push e habilitação do Pages feitos pelo usuário)
 Date: 2026-09-24
-Commit: `ecb9209`
+Commit: `b23d8b5`
 Files changed:
 - .github/workflows/deploy.yml
-- vite.config.ts (`base: './'`, em `44f4790`)
+- vite.config.ts (`base: './'`, em `f01899f`)
 
 ### How it works
 
@@ -889,7 +923,7 @@ Depois, a pedido do usuário, o histórico foi reescrito localmente
 
 Status: completed
 Date: 2026-09-24
-Commit: `7c0c61d`
+Commit: `dd6c5d1`
 Files changed:
 - scripts/qa-mobile.mjs
 
@@ -947,7 +981,7 @@ desnecessário. A próxima iteração nasce desse relato.
 
 Status: completed
 Date: 2026-09-25
-Commit: `f264fee`
+Commit: `439be6d`
 Files changed:
 - src/lessons/lesson-01.ts
 - src/app/App.test.tsx (rótulo da opção de Bonjour)
@@ -1002,7 +1036,7 @@ Não revisado por falante nativo.
 
 Status: completed
 Date: 2026-09-25
-Commits: `9432751` (SW + QA), `825826f` (id de build)
+Commits: `b04e304` (SW + QA), `741c253` (id de build)
 Files changed:
 - public/sw.js
 - scripts/qa-mobile.mjs
@@ -1060,6 +1094,48 @@ substitui o app, B não abre offline porque o 404 virou o shell). Com o novo, pa
 ### Future improvements
 
 - Nenhuma agora. Se houver code splitting ou áudio gravado, revisar DEC-010.
+
+## TASK-016 — Remover referências pessoais do app, dos docs e do histórico
+
+Status: completed
+Date: 2026-09-25
+Files changed:
+- index.html, public/manifest.webmanifest, public/sw.js
+- src/home/HomePage.tsx, src/app/NotFound.tsx, src/lib/storage.ts, src/styles/tokens.css
+- src/notes/lessonMarkdown.ts (+ testes), scripts/qa-mobile.mjs, package.json, package-lock.json
+- src/lessons/lesson-01.ts (só as datas da nota do Bonsoir)
+- README.md, CLAUDE.md, TODO.md, MEMORY.md, CHANGELOG.md, docs/DECISIONS.md
+
+### Problem
+
+Repositório público com datas e destinos pessoais no nome do app, na Home e nos docs.
+
+### Solution
+
+- Nome do app → "Learning French" (Home, título, manifest, cabeçalho das notas
+  `# Learning French — Session 01`); subtítulo com destinos e datas removido.
+- Identificadores antigos → `learning-french`: chave do localStorage,
+  cache do service worker, nome do pacote, arquivo `.md` exportado, tag das notas.
+- Docs reescritos sem datas nem destinos; os cenários são descritos como
+  "boulangerie" e "escola de esqui".
+- A aula **mantém** as cidades reais nos cenários (DEC-011); só as datas saíram
+  da nota do Bonsoir, que agora cita as cidades com "No inverno".
+- Histórico: um script de regras explícitas (substituições específicas antes das
+  genéricas) aplicado a cada commit com `git filter-branch --tree-filter` e
+  `--msg-filter`. Ensaio antes em cópias dos 15 commits; depois, varredura do
+  histórico inteiro de `main`: zero ocorrências fora da aula.
+
+### Validation
+
+`npm ci` + `npm run verify` (34 testes); QA WebKit completo, incluindo o ciclo de release.
+
+### Things learned
+
+- "Remover do projeto" num repositório público significa remover do histórico;
+  um commit novo não basta.
+- Substituições genéricas (identificador antigo → `learning-french`) precisam vir
+  depois das específicas, senão viram frases erradas ("criar `learning-french`
+  como o C05 previa").
 
 ---
 
