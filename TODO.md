@@ -1,153 +1,320 @@
-# TODO — roadmap de desenvolvimento
+# Learning French — TODO
 
-Sessões de desenvolvimento do Claude Code. Regras em [`CLAUDE.md`](./CLAUDE.md).
+Last updated: 2026-09-24 23:10
 
-Status: `pendente` · `em andamento` · `concluída`
+Regras do projeto em [`CLAUDE.md`](./CLAUDE.md). O que aconteceu e por quê está
+em [`MEMORY.md`](./MEMORY.md).
 
----
+## Current milestone
 
-## C00 — Fundação de repositório e engenharia — **concluída** (2026-09-17)
+v0.1 — Aula 1 usável + deploy no GitHub Pages
 
-Objetivo: base limpa de projeto.
+## Status
 
-- [x] inspecionar o diretório antes de mudar qualquer coisa
-- [x] inicializar o Git
-- [x] criar o projeto React + TypeScript + Vite
-- [x] estabelecer estrutura de pastas clara
-- [x] criar `CLAUDE.md`
-- [x] criar `TODO.md`
-- [x] criar `docs/DECISIONS.md`
-- [x] criar `CHANGELOG.md`
-- [x] configurar lint e typecheck
-- [x] teste básico (smoke test do shell)
-- [x] app shell inicial
-- [x] build de produção funcionando
-- [x] `.gitignore` sensato
-- [x] README explicando o experimento e a arquitetura
-- [x] commit inicial
+- [ ] Not started
+- [~] In progress
+- [x] Completed
+- [!] Blocked
+- [-] Rejected / no longer needed
 
----
+## Tasks
 
-## C01 — Shell mobile e navegação — pendente
+### TASK-001 — Inspeção do repositório e documentos operacionais
 
-Objetivo: esqueleto de app real, usável no iPhone.
+Status: [~]
+Priority: P0
+Area: docs
+Depends on: none
 
-- [ ] layout mobile-first
-- [ ] navegação inferior ergonômica
-- [ ] Hoje
-- [ ] Sessões
-- [ ] Frases
-- [ ] Revisão
-- [ ] Progresso
-- [ ] comportamento responsivo
-- [ ] estados vazios básicos
+Goal:
+Entender o estado real do repositório (C00) antes de mudar qualquer coisa, e
+criar os dois artefatos de controle da sessão autônoma: `TODO.md` (estado do
+trabalho) e `MEMORY.md` (memória do projeto).
 
-Dados de placeholder só onde for inevitável. Não construir a funcionalidade
-completa ainda.
+Acceptance criteria:
+- git status, log, remote, configs, docs, UI e testes inspecionados
+- trabalho do usuário não commitado identificado (ou ausência dele confirmada)
+- `TODO.md` reestruturado em tasks com ID, preservando o roadmap C00–C07
+- `MEMORY.md` criado com estado atual, restrições e log de decisões
 
-Aceite: navegação funciona; sem overflow horizontal em telas estreitas;
-controles de toque usáveis; cada área tem um estado vazio com propósito;
-build/typecheck/testes passam.
+Study reference:
+- MEMORY.md#task-001
 
 ---
 
-## C02 — Pipeline de conteúdo Markdown — pendente
+### TASK-002 — Modelo de conteúdo de aula (tipos + validação)
 
-Objetivo: arquivos Markdown de aula como fonte de conteúdo.
+Status: [ ]
+Priority: P0
+Area: learning / frontend
+Depends on: TASK-001
 
-- [ ] `/content/sessions`
-- [ ] uma sessão de exemplo/bootstrap
-- [ ] carregamento de Markdown
-- [ ] parsing de frontmatter
-- [ ] modelo de domínio tipado da sessão
-- [ ] erros de parsing tratados com elegância
-- [ ] lista de sessões
-- [ ] detalhe de sessão
-- [ ] renderização das seções úteis da aula
+Goal:
+Uma aula nova deve ser principalmente conteúdo, não código de UI. Definir um
+modelo tipado de aula (frases + passos de exercício) que o player sabe renderizar.
 
-Aceite: adicionar um arquivo Markdown disponibiliza a sessão automaticamente,
-sem editar tela nenhuma; conteúdo malformado falha sem quebrar o app; o código
-é simples de entender rápido.
+Acceptance criteria:
+- tipos de domínio explícitos em `src/lessons/types.ts`
+- passos cobrem: contexto, input de frases, reconhecimento, recuperação,
+  falar em voz alta, micro-cenário, recap
+- teste de integridade do conteúdo (ids únicos, referências a frases válidas,
+  respostas corretas existentes)
+- registro de aulas (`src/lessons/index.ts`) — adicionar a Aula 2 = adicionar
+  um arquivo + uma linha
 
----
-
-## C03 — Frases, listening e progresso local — pendente
-
-Objetivo: transformar o conteúdo das aulas em algo útil entre as sessões.
-
-- [ ] modelo de frase útil
-- [ ] lista de frases
-- [ ] suporte a categorias/tags
-- [ ] detalhe da frase
-- [ ] TTS nativo do navegador em francês, quando suportado
-- [ ] velocidade normal, velocidade lenta, repetir
-- [ ] favoritos
-- [ ] estado de frase difícil
-- [ ] abstração de localStorage versionada
-- [ ] estado básico de conclusão de sessão
-
-Aceite: dá para abrir o app numa tela de iPhone e revisar/ouvir frases; o estado
-persiste após reload; TTS indisponível é tratado com elegância.
+Study reference:
+- MEMORY.md#task-002
 
 ---
 
-## C04 — Fluxo de revisão — pendente
+### TASK-003 — Conteúdo da Aula 1: « Bonjour, je m'appelle Matheus »
 
-Objetivo: o primeiro loop de prática genuinamente útil.
+Status: [ ]
+Priority: P0
+Area: learning
+Depends on: TASK-002
 
-- [ ] marcação Novamente / Aprendendo / Sei
-- [ ] armazenar estado de revisão, último timestamp e contagem
-- [ ] tela de Revisão priorizando: Novamente → Aprendendo → não vistas → Sei
+Goal:
+Uma primeira aula para zero absoluto que deixa o aprendiz capaz de interação
+social básica: cumprimentar, agradecer, pedir por favor, sim/não, se apresentar,
+dizer que é brasileiro e que fala pouco francês.
 
-Sem SM-2 nem qualquer sistema complexo de repetição espaçada ainda.
+Acceptance criteria:
+- subconjunto pequeno de frases (≈12), agrupado em blocos
+- dica de pronúncia pensada para falante de português, sem pseudo-fonética
+  enganosa; IPA opcional
+- exercícios de reconhecimento, recuperação, fala e um micro-cenário real
+  (boulangerie)
+- conteúdo revisado quanto a correção do francês
 
-Aceite: o loop de revisão pode ser completado; o estado persiste; a ordenação é
-determinística e testável; a implementação deixa espaço para iterar depois.
-
----
-
-## C05 — PWA e publicação no GitHub Pages — pendente
-
-Objetivo: publicar o MVP usável antes da sessão de francês S01.
-
-- [ ] web app manifest
-- [ ] metadados de instalação
-- [ ] ícone do projeto
-- [ ] app shell offline
-- [ ] cache razoável
-- [ ] roteamento compatível com GitHub Pages
-- [ ] deploy via GitHub Actions
-- [ ] `base` do Vite correto para o subpath
-- [ ] validação em produção
-- [ ] criar o repositório no GitHub e configurar o remote
-- [ ] instruções de instalação no iPhone no README
-- [ ] tag `v0.1.0-mvp`
-
-Aceite: app acessível por URL HTTPS pública; navegação funciona hospedada;
-refresh não quebra a rota; instalável na tela de início do iPhone; o shell
-reabre offline depois de um primeiro carregamento online.
-
-**Este é o ponto em que a sessão de francês S01 pode começar.**
+Study reference:
+- MEMORY.md#task-003
 
 ---
 
-## C06 — Integração do baseline — pendente
+### TASK-004 — Persistência local de progresso
 
-Objetivo: preparar o app para exibir os dados reais do baseline de S01.
+Status: [ ]
+Priority: P0
+Area: frontend
+Depends on: TASK-002
 
-**Não inventar conteúdo de S01 antes de o ChatGPT gerar.**
+Goal:
+Progresso da aula (passo atual, respostas, conclusão, autoavaliação) sobrevive
+a refresh e a reabrir o PWA.
 
-Aceite: o S01 real pode ser colocado no diretório de conteúdo sem mudança de
-código; o conteúdo é parseado e exibido; campos de métricas de aprendizado são
-representáveis sem redesenhar o app.
+Acceptance criteria:
+- acesso a `localStorage` centralizado e versionado (`learning-french:v1:*`)
+- tolera primeira visita, JSON corrompido, formato antigo/estranho e
+  `localStorage` indisponível
+- lógica de progresso em funções puras testadas
+
+Study reference:
+- MEMORY.md#task-004
 
 ---
 
-## C07+ — Iterações guiadas por evidência — pendente
+### TASK-005 — Player de aula e verificação de respostas
 
-Sem backlog fixo. Novas sessões nascem apenas de: problemas de aprendizado
-observados, necessidades práticas, bugs, problemas de usabilidade ou
-necessidades de medição para o artigo.
+Status: [ ]
+Priority: P0
+Area: frontend / learning
+Depends on: TASK-002, TASK-004
 
-Todo pedido futuro registra: Problema → Hipótese → Implementação mínima →
-Resultado.
+Goal:
+Renderizar qualquer aula do modelo como uma sequência interativa de passos, com
+retomada no passo salvo.
+
+Acceptance criteria:
+- cada tipo de passo tem um componente pequeno
+- recuperação (PT → FR digitado) tolera acentos, apóstrofos, pontuação e um
+  erro de digitação em respostas longas
+- fala em voz alta = autoconfirmação honesta (sem fingir avaliar)
+- cenário com escolhas, feedback e nova tentativa
+- teste de integração percorrendo passos e verificando persistência
+
+Study reference:
+- MEMORY.md#task-005
+
+---
+
+### TASK-006 — Home e shell mobile
+
+Status: [ ]
+Priority: P0
+Area: frontend
+Depends on: TASK-004
+
+Goal:
+Tela inicial com status, aula atual, aulas concluídas e CTA
+Começar / Continuar / Refazer Aula 1.
+
+Acceptance criteria:
+- CTA muda conforme o progresso salvo
+- funciona a partir de 320px, sem overflow horizontal, alvos ≥ 44px
+- dark mode intencional (tokens existentes, tipografia editorial)
+
+Study reference:
+- MEMORY.md#task-006
+
+---
+
+### TASK-007 — Áudio com síntese de voz do navegador
+
+Status: [ ]
+Priority: P1
+Area: frontend / learning
+Depends on: TASK-005
+
+Goal:
+Ouvir cada frase em francês (normal e lento) sem API paga, como melhoria
+progressiva.
+
+Acceptance criteria:
+- usa `speechSynthesis` com voz `fr-*` quando existir
+- sem suporte: botão some e a aula continua funcionando
+- nenhuma dependência nova
+
+Study reference:
+- MEMORY.md#task-007
+
+---
+
+### TASK-008 — Exportação Markdown para Obsidian
+
+Status: [ ]
+Priority: P0
+Area: frontend / learning
+Depends on: TASK-004
+
+Goal:
+No fim da aula, gerar uma nota Markdown com vocabulário, frases, pronúncia,
+desempenho real, dificuldades e evidência do projeto.
+
+Acceptance criteria:
+- gerador puro e testado; métricas só de dados realmente registrados
+- ações: Copiar Markdown e Baixar `.md`
+- acessível pela Home depois de concluir
+
+Study reference:
+- MEMORY.md#task-008
+
+---
+
+### TASK-009 — PWA mínimo (manifest, ícones, offline básico)
+
+Status: [ ]
+Priority: P1
+Area: PWA
+Depends on: TASK-006
+
+Goal:
+Instalar na tela de início do iPhone e reabrir o app sem rede depois do
+primeiro carregamento.
+
+Acceptance criteria:
+- manifest com nome, cores, ícones PNG; `apple-touch-icon`
+- service worker escrito à mão, pequeno, sem dependência
+- comportamento offline realmente verificado (ou documentado como não verificado)
+
+Study reference:
+- MEMORY.md#task-009
+
+---
+
+### TASK-010 — Deploy no GitHub Pages via Actions
+
+Status: [ ]
+Priority: P0
+Area: deployment
+Depends on: TASK-009
+
+Goal:
+URL HTTPS pública servindo o app a partir de um subpath.
+
+Acceptance criteria:
+- build funciona em subpath (`/<repo>/`) — verificado localmente
+- workflow mínimo: build + verify + deploy-pages
+- remote configurado, push feito, Pages habilitado, deploy verificado por HTTP
+
+Study reference:
+- MEMORY.md#task-010
+
+---
+
+### TASK-011 — Validação mobile e QA do fluxo completo
+
+Status: [ ]
+Priority: P0
+Area: testing
+Depends on: TASK-005, TASK-006, TASK-008
+
+Goal:
+Checar a experiência real num viewport de iPhone: layout, teclado, refresh,
+conclusão, exportação.
+
+Acceptance criteria:
+- percorrer a Aula 1 inteira num motor WebKit com viewport de iPhone
+- sem overflow horizontal em 320px e 390px
+- refresh no meio da aula retoma no mesmo passo
+
+Study reference:
+- MEMORY.md#task-011
+
+---
+
+### TASK-012 — README e documentação estável
+
+Status: [ ]
+Priority: P1
+Area: docs
+Depends on: TASK-010
+
+Goal:
+Outro desenvolvedor entende o projeto, roda, testa e publica só lendo o README.
+
+Acceptance criteria:
+- README cobre: objetivo, stack, rodar, build, testes, deploy, onde fica o
+  conteúdo, onde fica a persistência, papel do TODO.md e do MEMORY.md
+- `CHANGELOG.md` e `docs/DECISIONS.md` atualizados
+
+Study reference:
+- MEMORY.md#task-012
+
+---
+
+## Fora da v0.1 (só entra se o aprendizado pedir)
+
+Ideias registradas para não se perderem. Nenhuma está comprometida. A regra:
+uma feature só nasce de um problema observado nas aulas reais.
+
+- **Pipeline de aulas em Markdown (antigo C02)** — carregar o Markdown gerado
+  pelo ChatGPT. Adiado até existir o formato real de uma aula do ChatGPT; ver
+  DEC-002.
+- **Navegação em abas: Hoje / Sessões / Frases / Revisão / Progresso (antigo
+  C01)** — adiado: com uma aula só, cinco abas seriam cinco estados vazios.
+- **Lista de frases com favoritos e "difícil" (antigo C03)** — o recap da Aula 1
+  já coleta "frases difíceis"; se a lista crescer e revisar ficar difícil, vira
+  tela própria.
+- **Fluxo de revisão Novamente / Aprendendo / Sei (antigo C04)** — sem SM-2.
+  Só depois de 2–3 aulas mostrarem que revisar entre aulas é um problema.
+- **Integração do baseline S01 (antigo C06)**.
+- **Reconhecimento de fala** — só se for confiável o bastante; hoje não é
+  objetivo.
+- **Tag `v0.1.0-mvp`** — criar depois que o usuário validar no iPhone real.
+
+## Histórico: roadmap por sessões C00–C07
+
+O roadmap original (sessões `Cxx`) foi substituído por tasks com ID na sessão
+autônoma de 2026-09-24, a pedido do usuário. Mapeamento:
+
+| Sessão | Status | Para onde foi |
+| --- | --- | --- |
+| C00 — Fundação | concluída (2026-09-17) | commit `ec92453` |
+| C01 — Shell mobile e navegação | parcial | TASK-006 (Home); abas adiadas |
+| C02 — Pipeline Markdown | adiada | "Fora da v0.1"; DEC-002 |
+| C03 — Frases, listening, progresso | parcial | TASK-004, TASK-007 |
+| C04 — Fluxo de revisão | adiada | "Fora da v0.1" |
+| C05 — PWA e GitHub Pages | nesta sessão | TASK-009, TASK-010 |
+| C06 — Baseline S01 | adiada | "Fora da v0.1" |
+| C07+ — Iterações por evidência | contínuo | regra geral do backlog |
