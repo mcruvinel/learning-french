@@ -1,7 +1,9 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { lesson01 } from '../lessons/lesson-01'
+import { readBackup, serializeBackup } from '../progress/backup'
+import { completeLesson, emptyProgress, startLesson } from '../progress/progress'
 import { ProgressProvider } from '../progress/ProgressProvider'
 import { App } from './App'
 
@@ -103,7 +105,7 @@ describe('Lesson 1 flow', () => {
     seedAtStep('recap')
     mount('/lesson/lesson-01')
     click('Ok')
-    click('Concluir aula')
+    click('Concluir aula e salvar backup')
     expect(stored().lessons['lesson-01'].status).toBe('completed')
     fireEvent.click(screen.getByRole('link', { name: 'Ver notas para o Obsidian' }))
     expect(screen.getByRole('heading', { name: 'Para o Obsidian' })).toBeDefined()
@@ -120,6 +122,50 @@ describe('Lesson 1 flow', () => {
   test('corrupted storage does not break the app', () => {
     localStorage.setItem(KEY, '{not json')
     mount()
+    expect(screen.getByRole('link', { name: 'Começar Aula 1' })).toBeDefined()
+  })
+})
+
+describe('progress backup (.json)', () => {
+  test('completing the lesson saves a backup with the completed progress', async () => {
+    let saved: Blob | undefined
+    URL.createObjectURL = vi.fn((blob: Blob) => {
+      saved = blob
+      return 'blob:test'
+    })
+    URL.revokeObjectURL = vi.fn()
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
+
+    seedAtStep('recap')
+    mount('/lesson/lesson-01')
+    click('Concluir aula e salvar backup')
+    await screen.findByText(/Backup do progresso salvo/)
+
+    expect(clickSpy).toHaveBeenCalled()
+    const backup = readBackup(await saved!.text())
+    expect(backup?.lessons['lesson-01']?.status).toBe('completed')
+    clickSpy.mockRestore()
+  })
+
+  test('importing on an empty device restores the lesson', async () => {
+    const t = '2026-09-25T08:00:00.000Z'
+    const done = completeLesson(startLesson(emptyProgress, 'lesson-01', t), 'lesson-01', t)
+    const file = new File([serializeBackup(done, new Date(t))], 'backup.json', { type: 'application/json' })
+
+    mount()
+    expect(screen.getByText(/Já estudou em outro aparelho/)).toBeDefined()
+    fireEvent.change(screen.getByLabelText('Arquivo de backup do progresso'), { target: { files: [file] } })
+
+    await screen.findByText(/Progresso importado \(1 aula\)/)
+    expect(screen.getByRole('link', { name: 'Notas da Aula 1' })).toBeDefined()
+    await waitFor(() => expect(stored().lessons['lesson-01'].status).toBe('completed'))
+  })
+
+  test('an unrelated file is rejected without touching progress', async () => {
+    mount()
+    const file = new File(['{"hello": "world"}'], 'x.json', { type: 'application/json' })
+    fireEvent.change(screen.getByLabelText('Arquivo de backup do progresso'), { target: { files: [file] } })
+    await screen.findByText(/Arquivo não reconhecido/)
     expect(screen.getByRole('link', { name: 'Começar Aula 1' })).toBeDefined()
   })
 })

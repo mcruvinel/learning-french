@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { lessons } from '../lessons'
 import { restartLesson } from '../progress/progress'
 import { useProgress } from '../progress/useProgress'
+import { BackupActions } from './BackupActions'
 import { currentLesson } from './currentLesson'
 import './Home.css'
 
@@ -121,8 +122,10 @@ export function HomePage() {
         </p>
       )}
 
+      <BackupActions prominent={Object.keys(progress.lessons).length === 0} />
+
       <footer className="home-footer">
-        v{__APP_VERSION__} · progresso salvo só neste aparelho
+        v{__APP_VERSION__} · progresso salvo neste aparelho; use o backup para levar a outro
       </footer>
     </main>
   )

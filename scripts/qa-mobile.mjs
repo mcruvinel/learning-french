@@ -11,7 +11,8 @@
 // reloads mid-lesson to check resume, checks horizontal overflow on every
 // step, completes the lesson, opens the notes, then stops its own static
 // server and reloads to check the service worker serves the app offline.
-// A last phase simulates a new release (build B) over an installed build A:
+// The backup saved on completion is imported in a fresh browser context
+// (a second device). A last phase simulates a new release (build B) over an installed build A:
 // B must load on the next online launch, A's bundle must leave the cache, a
 // 404 must fall back to the cached shell, and B must then work offline.
 // (Playwright's context.setOffline() breaks service-worker navigations in
@@ -71,10 +72,18 @@ async function stepCounter(page) {
 async function run(deviceName, viewport) {
   const browser = await webkit.launch()
   const context = await browser.newContext({ ...devices[deviceName], ...(viewport && { viewport }) })
+  // Headless WebKit has no share sheet: record what the app shares instead.
+  await context.addInitScript(() => {
+    navigator.share = async ({ files }) => {
+      const file = files?.[0]
+      if (file) window.__shared = { name: file.name, text: await file.text() }
+    }
+  })
   const page = await context.newPage()
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
   const tag = viewport ? `${viewport.width}px` : deviceName
+  let backupPath = null
 
   await page.goto(BASE)
   await page.getByRole('link', { name: 'Começar Aula 1' }).click()
@@ -147,7 +156,20 @@ async function run(deviceName, viewport) {
         await page.getByRole('button', { name: 'Fácil' }).click()
         await page.getByRole('button', { name: /^Bonjour/ }).click() // mark as difficult
         await shoot()
-        await page.getByRole('button', { name: 'Concluir aula' }).click()
+        {
+          // Completing also saves the progress backup. On a touch device the app
+          // hands the file to the share sheet (stubbed in newContext below).
+          await page.getByRole('button', { name: 'Concluir aula e salvar backup' }).click()
+          const shared = await page
+            .waitForFunction(() => window.__shared, null, { timeout: 5000 })
+            .then((h) => h.jsonValue())
+            .catch(() => null)
+          check(shared?.name?.endsWith('.json'), `${tag}: completing did not share a backup .json`)
+          if (shared) {
+            backupPath = join(siteRoot, shared.name)
+            writeFileSync(backupPath, shared.text)
+          }
+        }
         await page.getByRole('link', { name: 'Ver notas para o Obsidian' }).click()
         break
     }
@@ -193,9 +215,28 @@ async function run(deviceName, viewport) {
     problems.push(`${tag}: ${offline}`)
   }
 
+  // Second device: empty storage, import the backup saved on completion.
+  let transfer = 'backup not checked'
+  if (backupPath) {
+    const other = await browser.newContext({ ...devices[deviceName], ...(viewport && { viewport }) })
+    const page2 = await other.newPage()
+    await page2.goto(BASE)
+    await page2.getByLabel('Arquivo de backup do progresso').setInputFiles(backupPath)
+    const restored = await page2
+      .getByRole('link', { name: 'Notas da Aula 1' })
+      .waitFor({ timeout: 5000 })
+      .then(() => true)
+      .catch(() => false)
+    check(restored, `${tag}: importing the backup on another device did not restore the lesson`)
+    await assertNoOverflow(page2, `${tag} home after import`)
+    if (SHOTS) await page2.screenshot({ path: `${SHOTS}/${tag}-99-imported.png`, fullPage: true })
+    transfer = restored ? 'backup → other device OK' : 'backup → other device FAILED'
+    await other.close()
+  }
+
   check(errors.length === 0, `${tag}: page errors: ${errors.join(' | ')}`)
   await browser.close()
-  return `${tag}: ${lesson01.steps.length} steps OK · ${offline}`
+  return `${tag}: ${lesson01.steps.length} steps OK · ${offline} · ${transfer}`
 }
 
 async function cachedAssets(page) {

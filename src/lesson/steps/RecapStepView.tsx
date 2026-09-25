@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { lessonMetrics, type Score } from '../../progress/metrics'
 import {
@@ -6,6 +7,7 @@ import {
   setSelfRating,
   toggleDifficultPhrase,
 } from '../../progress/progress'
+import { BACKUP_MESSAGES, saveProgressBackup } from '../../progress/saveBackup'
 import { useProgress } from '../../progress/useProgress'
 import type { SelfRating } from '../../progress/types'
 import type { RecapStep } from '../../lessons/types'
@@ -23,11 +25,24 @@ const RATINGS: { value: SelfRating; label: string }[] = [
  */
 export function RecapStepView({ lesson, step }: StepProps<RecapStep>) {
   const { progress, update } = useProgress()
+  const [backupMessage, setBackupMessage] = useState<string | null>(null)
   const lp = progress.lessons[lesson.id]
   if (!lp) return null
   const m = lessonMetrics(lesson, lp)
   const now = () => new Date().toISOString()
   const completed = lp.status === 'completed'
+
+  /** Completing also saves the progress backup (.json), in the same tap. */
+  function complete() {
+    const t = now()
+    update((s) => completeLesson(s, lesson.id, t))
+    void saveBackup(completeLesson(progress, lesson.id, t))
+  }
+
+  async function saveBackup(state = progress) {
+    const result = await saveProgressBackup(state)
+    setBackupMessage(BACKUP_MESSAGES[result])
+  }
 
   return (
     <div className="step-body">
@@ -117,6 +132,12 @@ export function RecapStepView({ lesson, step }: StepProps<RecapStep>) {
             <p className="feedback feedback--ok" role="status">
               Aula {lesson.number} concluída. Bravo !
             </p>
+            <p className="muted small" role="status">
+              {backupMessage ?? 'Guarde o backup (.json) no iCloud Drive para continuar em outro aparelho.'}
+            </p>
+            <button type="button" className="btn btn--ghost" onClick={() => void saveBackup()}>
+              Salvar backup do progresso
+            </button>
             <Link className="btn btn--primary" to={`/lesson/${lesson.id}/notes`}>
               Ver notas para o Obsidian
             </Link>
@@ -128,9 +149,9 @@ export function RecapStepView({ lesson, step }: StepProps<RecapStep>) {
           <button
             type="button"
             className="btn btn--primary"
-            onClick={() => update((s) => completeLesson(s, lesson.id, now()))}
+            onClick={complete}
           >
-            Concluir aula
+            Concluir aula e salvar backup
           </button>
         )}
       </div>
