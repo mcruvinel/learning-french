@@ -1,6 +1,6 @@
 # Learning French — TODO
 
-Last updated: 2026-09-25
+Last updated: 2026-09-25 (deploy observado)
 
 Regras do projeto em [`CLAUDE.md`](./CLAUDE.md). O que aconteceu e por quê está
 em [`MEMORY.md`](./MEMORY.md).
@@ -40,7 +40,7 @@ Acceptance criteria:
 Result:
 - Repositório no estado C00, árvore limpa, sem trabalho não commitado.
 - Remote inexistente; repo vazio `mcruvinel/learning-french` encontrado no GitHub e adotado (DEC-001).
-- Commit `85324b4`.
+- Commit `47e4d52`.
 
 Study reference:
 - MEMORY.md#task-001
@@ -70,7 +70,7 @@ Acceptance criteria:
 Result:
 - `src/lessons/types.ts` + `index.ts`; 8 tipos de passo em união discriminada.
 - 3 testes de integridade em `lessons.test.ts`.
-- Commit `24afb1f`.
+- Commit `43ecf83`.
 
 Study reference:
 - MEMORY.md#task-002
@@ -98,7 +98,7 @@ Acceptance criteria:
 - conteúdo revisado quanto a correção do francês
 
 Result:
-- 12 frases, 24 passos, 2 cenários (boulangerie, escola de esqui). Commit `24afb1f`.
+- 12 frases, 24 passos, 2 cenários (boulangerie, escola de esqui). Commit `43ecf83`.
 - Francês revisado pelo Claude; **não revisado por falante nativo** (ver MEMORY.md TASK-003).
 
 Study reference:
@@ -125,7 +125,7 @@ Acceptance criteria:
 
 Result:
 - `src/lib/storage.ts`, `src/progress/*`. 14 testes (transições, parse de dados malformados, métricas).
-- Commit `39ab58f`.
+- Commit `dd81e41`.
 
 Study reference:
 - MEMORY.md#task-004
@@ -153,7 +153,7 @@ Acceptance criteria:
 
 Result:
 - Player + 8 views de passo; `answers.ts` com 7 testes; 6 testes de integração do fluxo.
-- Commit `f3714ed` (checagem de resposta em `39ab58f`).
+- Commit `44f4790` (checagem de resposta em `dd81e41`).
 
 Study reference:
 - MEMORY.md#task-005
@@ -177,7 +177,7 @@ Acceptance criteria:
 - dark mode intencional (tokens existentes, tipografia editorial)
 
 Result:
-- Home verificada em WebKit a 390px e 320px, sem overflow. Commit `f3714ed`.
+- Home verificada em WebKit a 390px e 320px, sem overflow. Commit `44f4790`.
 
 Study reference:
 - MEMORY.md#task-006
@@ -201,7 +201,7 @@ Acceptance criteria:
 - nenhuma dependência nova
 
 Result:
-- `src/lib/speech.ts` + `ListenButtons`. Botões aparecem no WebKit do Playwright; **o som em si não foi ouvido** (headless). Validar no iPhone (TASK-013). Commit `f3714ed`.
+- `src/lib/speech.ts` + `ListenButtons`. Botões aparecem no WebKit do Playwright; **o som em si não foi ouvido** (headless). Validar no iPhone (TASK-013). Commit `44f4790`.
 
 Study reference:
 - MEMORY.md#task-007
@@ -226,7 +226,7 @@ Acceptance criteria:
 
 Result:
 - Gerador puro com 4 testes; tela de notas com Copiar / Baixar / Compartilhar.
-- Copiar/baixar/compartilhar não verificados num iPhone real (TASK-013). Commits `cde06e4`, `f3714ed`.
+- Copiar/baixar/compartilhar não verificados num iPhone real (TASK-013). Commits `4367b0a`, `44f4790`.
 
 Study reference:
 - MEMORY.md#task-008
@@ -252,7 +252,7 @@ Acceptance criteria:
 Result:
 - Manifest, ícones PNG, `public/sw.js`.
 - Offline verificado em WebKit: com o servidor parado, reload e deep link funcionam.
-- Instalação na tela de início do iPhone **não verificada** (TASK-013). Commit `00525a1`.
+- Instalação na tela de início do iPhone **não verificada** (TASK-013). Commit `0c5c9d7`.
 
 Study reference:
 - MEMORY.md#task-009
@@ -261,7 +261,7 @@ Study reference:
 
 ### TASK-010 — Deploy no GitHub Pages via Actions
 
-Status: [!]
+Status: [x]
 Priority: P0
 Area: deployment
 Depends on: TASK-009
@@ -279,10 +279,10 @@ Implementation notes:
 - Build verificado localmente servido em `/learning-french/`.
 
 Result:
-- Workflow criado (`0a3c0be`), YAML válido, `npm ci` + `npm run verify` limpos numa cópia isolada, remote `origin` configurado.
-- **Bloqueado:** um hook local (`~/.claude/hooks/block-git-push.sh`) proíbe o Claude de enviar commits ao GitHub. Nada foi enviado e o Pages não foi habilitado.
-- Preflight (2026-09-25): caminhos relativos, escopo do SW, manifest, hash routing, build em `/learning-french/`, offline, refresh e ciclo de release verificados localmente; SSH do usuário autentica; `origin` vazio.
-- **Para desbloquear:** rodar os comandos de [MEMORY.md → Deploy Now](./MEMORY.md#deploy-now). Marcar `[x]` só depois de ver o run verde e HTTP 200.
+- Workflow criado (`ecb9209`), YAML válido, `npm ci` + `npm run verify` limpos numa cópia isolada, remote `origin` configurado.
+- Push e habilitação do Pages feitos pelo usuário em 2026-09-25 (o Claude não pode rodar push: hook local).
+- Observado: runs verdes, `HTTP/2 200` em https://mcruvinel.github.io/learning-french/.
+- Histórico reescrito depois para remover a co-autoria do Claude; publicar com `--force-with-lease` ([MEMORY.md → Deploy Now](./MEMORY.md#deploy-now)).
 
 Study reference:
 - MEMORY.md#task-010
@@ -307,7 +307,7 @@ Acceptance criteria:
 
 Result:
 - `scripts/qa-mobile.mjs`: Aula 1 inteira em WebKit, iPhone 13 (390px) e 320px, recuperação digitada sem acento, refresh no meio (retoma no mesmo passo), conclusão, notas, Home, offline. Todos os checks passaram.
-- Não substitui o iPhone real (teclado, Safari, áudio). Commit `6785783`.
+- Não substitui o iPhone real (teclado, Safari, áudio). Commit `7c0c61d`.
 
 Study reference:
 - MEMORY.md#task-011
@@ -379,7 +379,7 @@ Result:
   finais são mudas" contradizia bonjour/s'il; agora r e l finais soam, e as dicas
   avisam das armadilhas brasileiras (r final engolido, l virando u, nasais com glide).
 - Cenário da escola de esqui usa "C'est à quel nom ?" (pergunta real de balcão).
-- Não revisado por falante nativo. Commit `5503487`.
+- Não revisado por falante nativo. Commit `f264fee`.
 
 Study reference:
 - MEMORY.md#task-014
@@ -407,7 +407,7 @@ Acceptance criteria:
 Result:
 - `refreshShell()` + `isGoodShell()` em `public/sw.js`; cache `v2`.
 - Fase de release no `scripts/qa-mobile.mjs`: passa no novo SW, falha em 3 checks no antigo.
-- Rodapé e notas mostram `0.1.0+<commit>`. Commits `a4fa23c`, `885a96c`.
+- Rodapé e notas mostram `0.1.0+<commit>`. Commits `9432751`, `825826f`.
 
 Study reference:
 - MEMORY.md#task-015
@@ -441,11 +441,11 @@ autônoma de 2026-09-24, a pedido do usuário. Mapeamento:
 
 | Sessão | Status | Para onde foi |
 | --- | --- | --- |
-| C00 — Fundação | concluída (2026-09-17) | commit `ec92453` |
+| C00 — Fundação | concluída (2026-09-17) | commit `e683263` |
 | C01 — Shell mobile e navegação | parcial | TASK-006 (Home); abas adiadas |
 | C02 — Pipeline Markdown | adiada | "Fora da v0.1"; DEC-002 |
 | C03 — Frases, listening, progresso | parcial | TASK-004, TASK-007 |
 | C04 — Fluxo de revisão | adiada | "Fora da v0.1" |
-| C05 — PWA e GitHub Pages | PWA feito e endurecido; deploy bloqueado | TASK-009, TASK-010, TASK-013, TASK-015 |
+| C05 — PWA e GitHub Pages | concluída (deploy 2026-09-25) | TASK-009, TASK-010, TASK-013, TASK-015 |
 | C06 — Baseline S01 | adiada | "Fora da v0.1" |
 | C07+ — Iterações por evidência | contínuo | regra geral do backlog |

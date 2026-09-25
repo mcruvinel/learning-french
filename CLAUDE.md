@@ -75,6 +75,8 @@ originais estão mapeadas no fim do `TODO.md`. Em cada sessão:
 5. Rodar a verificação (`npm run verify`).
 6. Atualizar `TODO.md` e o registro da task em `MEMORY.md`.
 7. Fazer commits limpos, um por unidade de trabalho.
+   **Nunca** adicionar `Co-Authored-By` (nem qualquer atribuição ao Claude) em
+   commits ou PRs. O autor é só o Matheus.
 8. Reportar: o que foi implementado, decisões, arquivos, verificação,
    limitações conhecidas e a próxima ação.
 

@@ -114,7 +114,7 @@ URL esperada: `https://mcruvinel.github.io/learning-french/`.
 Primeira publicação: Pages precisa estar configurado com a fonte "GitHub
 Actions". Os comandos exatos estão em [`MEMORY.md` → Deploy Now](./MEMORY.md#deploy-now).
 
-Cada build mostra `versão+commit` (ex.: `0.1.0+885a96c`) no rodapé da Home e
+Cada build mostra `versão+commit` (ex.: `0.1.0+825826f`) no rodapé da Home e
 nas notas — é assim que se confere qual deploy o iPhone está rodando.
 
 ### Service worker e releases

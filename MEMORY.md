@@ -1,27 +1,24 @@
 # Deploy Now
 
+O primeiro deploy já foi feito (2026-09-25). Depois disso o histórico local foi
+reescrito para remover a linha de co-autoria do Claude dos commits (mesmo
+conteúdo, hashes novos). Para publicar o histórico reescrito:
+
 ```bash
 cd <raiz do repositório>
-git status                      # esperado: "nothing to commit, working tree clean"
-git push -u origin main
-gh api -X POST repos/mcruvinel/learning-french/pages -f build_type=workflow
-#   se der 403: https://github.com/mcruvinel/learning-french/settings/pages → Source: "GitHub Actions"
-gh workflow run deploy.yml --ref main
-#   se der 403: https://github.com/mcruvinel/learning-french/actions → "Deploy to GitHub Pages" → Run workflow
+git status                                  # esperado: "nothing to commit, working tree clean"
+git push --force-with-lease origin main
+gh run watch --exit-status $(gh run list --workflow deploy.yml --limit 1 --json databaseId -q '.[0].databaseId')
+curl -sI https://mcruvinel.github.io/learning-french/ | head -1
 ```
 
 - URL pública: https://mcruvinel.github.io/learning-french/
-- Acompanhar o run:
-  `gh run list --workflow deploy.yml --limit 3` e
-  `gh run watch --exit-status $(gh run list --workflow deploy.yml --limit 1 --json databaseId -q '.[0].databaseId')`
-- Verificar HTTP 200: `curl -sI https://mcruvinel.github.io/learning-french/ | head -1`
-- Sucesso =
-  - o run disparado pelo push pode falhar em `configure-pages` (o Pages ainda não existia) — esperado;
-  - o run seguinte fica verde nos jobs `build` e `deploy`;
-  - o `curl` responde `HTTP/2 200` (pode levar 1–2 min após o deploy);
-  - no rodapé da Home aparece `v0.1.0+<hash>` igual a `git rev-parse --short HEAD`.
+- Sucesso = run verde (`build` e `deploy`), `HTTP/2 200`, e o rodapé da Home
+  mostra `v0.1.0+<hash>` igual a `git rev-parse --short HEAD`.
+- Depois de confirmar, o backup local pode ser apagado:
+  `git branch -D backup/antes-de-remover-coautor`
 
-Depois: marcar TASK-010 `[x]` no TODO.md e fazer o checklist do iPhone (TASK-013, mais abaixo).
+Releases seguintes: `git push` normal em `main` publica sozinho.
 
 ---
 
@@ -37,36 +34,37 @@ A v0.1 continua pronta **localmente** e agora está mais correta e mais segura
 para releases futuros: a Aula 1 foi revisada (regras de pronúncia que
 contradiziam a própria aula foram corrigidas), o service worker não pode mais
 transformar um 404 ou uma página de Wi-Fi de hotel no "app offline", e o
-rodapé mostra o commit do build. **Continua não publicada**: o Claude não pode
-enviar commits (hook local). Comandos em "Deploy Now".
+rodapé mostra o commit do build. **Publicada** em
+https://mcruvinel.github.io/learning-french/ (deploy feito pelo usuário e
+observado: runs verdes, HTTP 200). Falta publicar o histórico reescrito sem
+co-autoria ("Deploy Now").
 
 ## What I can do now
 
-- Rodar os comandos de "Deploy Now" (≈5 min).
-- Depois, no iPhone, executar o checklist da TASK-013.
+- Abrir o app no iPhone e executar o checklist da TASK-013.
+- Publicar o histórico reescrito ("Deploy Now").
 
 ## What was completed
 
 Sessão 2026-09-25:
 - TASK-014 — Revisão crítica do francês e do design da Aula 1
 - TASK-015 — Service worker consistente entre releases + id de build visível
-- TASK-010 (parcial) — preflight completo do deploy; continua [!] bloqueada
+- TASK-010 — preflight do deploy; deploy feito pelo usuário e observado
 
 Sessão 2026-09-24:
 - TASK-001 a TASK-009, TASK-011, TASK-012 (ver registros abaixo)
 
 ## What remains
 
-- TASK-010 — Deploy: **[!] bloqueado** até você rodar "Deploy Now"
 - TASK-013 — Checklist no iPhone real (humano)
 
 ## Deployment
 
-Repository: `git@github.com:mcruvinel/learning-french.git` (público, vazio; SSH do seu usuário autenticado)
+Repository: `git@github.com:mcruvinel/learning-french.git` (público)
 Branch: `main`
 Commit: HEAD de `main` (`git log -1`) — o hash aparece no rodapé do app publicado
-GitHub Pages: https://mcruvinel.github.io/learning-french/ (ainda não habilitado)
-Deployment status: **não publicado — não observado**
+GitHub Pages: https://mcruvinel.github.io/learning-french/
+Deployment status: **publicado e observado** em 2026-09-25 — runs `36132278468` (push) e `36132354025` (manual) verdes, `HTTP/2 200`, bundle servindo `0.1.0+8558409` (hash anterior à reescrita do histórico; o próximo push mostra o hash novo)
 
 ## Validation
 
@@ -77,7 +75,7 @@ Typecheck: ✅ `tsc -b` estrito
 Mobile: ✅ WebKit, perfil iPhone 13 (390px) e 320px, 24 passos, sem overflow, sem erros de JS. ⚠️ iPhone físico não testado.
 Persistence: ✅ refresh no meio retoma o passo (jsdom + WebKit); JSON corrompido não quebra.
 PWA: ✅ offline com servidor parado; ✅ ciclo de release A→B (B carrega online, bundle de A removido do cache, 404 cai no shell em cache, B abre offline). ⚠️ "Adicionar à Tela de Início" não verificado.
-GitHub Pages: ✅ build servido em `/learning-french/` passa todo o QA; caminhos relativos; SW com escopo `/learning-french/`; YAML do workflow válido. ❌ Deploy real não observado.
+GitHub Pages: ✅ build servido em `/learning-french/` passa todo o QA; caminhos relativos; SW com escopo `/learning-french/`; YAML do workflow válido. ✅ Deploy real observado (HTTP 200).
 
 ## Important decisions
 
@@ -95,7 +93,7 @@ GitHub Pages: ✅ build servido em `/learning-french/` passa todo o QA; caminhos
 
 ## Recommended next action
 
-Rodar "Deploy Now" e fazer a Aula 1 no iPhone seguindo o checklist da TASK-013.
+Fazer a Aula 1 no iPhone seguindo o checklist da TASK-013.
 A próxima iteração do produto só será decidida depois do seu relato.
 
 ---
@@ -110,7 +108,7 @@ A próxima iteração do produto só será decidida depois do seu relato.
 
 Last updated: 2026-09-25
 Current version: 0.1.0 (o build mostra `0.1.0+<commit>`)
-Deployment: não publicado (TASK-010 bloqueada)
+Deployment: https://mcruvinel.github.io/learning-french/ (publicado 2026-09-25)
 Current lesson: Aula 1 — « Bonjour, je m'appelle Matheus » (conteúdo pronto)
 Main stack: React 19 · TypeScript estrito · Vite 8 · react-router (hash) · Vitest · oxlint · CSS puro · localStorage
 
@@ -146,11 +144,11 @@ Main stack: React 19 · TypeScript estrito · Vite 8 · react-router (hash) · V
 
 **Blocked**:
 
-- Deploy (TASK-010): push proibido para o Claude por hook local.
+- Nada. O Claude continua sem poder rodar push (hook local): publicar é sempre ação do usuário.
 
 ### What is incomplete
 
-- Deploy e validação no iPhone real (TASK-010, TASK-013).
+- Validação no iPhone real (TASK-013).
 - Francês da Aula 1 revisado criticamente (TASK-014), mas não por falante nativo.
 - Sem Aula 2: por decisão, o currículo vem do ChatGPT.
 
@@ -459,7 +457,7 @@ O app passar a ter mais de um bundle (code splitting) ou assets grandes (áudio)
 
 Status: completed
 Date: 2026-09-24
-Commit: `85324b4`
+Commit: `47e4d52`
 Files changed:
 - TODO.md
 - MEMORY.md
@@ -485,7 +483,7 @@ o mapeamento ficou no fim do TODO.md.
 
 Status: completed
 Date: 2026-09-24
-Commit: `24afb1f`
+Commit: `43ecf83`
 Files changed:
 - src/lessons/types.ts
 - src/lessons/index.ts
@@ -545,7 +543,7 @@ componentes por aula (cada aula = código).
 
 Status: completed
 Date: 2026-09-24
-Commit: `24afb1f`
+Commit: `43ecf83`
 Files changed:
 - src/lessons/lesson-01.ts
 
@@ -595,7 +593,7 @@ ChatGPT para revisar `lesson-01.ts` (especialmente as dicas de pronúncia).
 
 Status: completed
 Date: 2026-09-24
-Commit: `39ab58f`
+Commit: `dd81e41`
 Files changed:
 - src/lib/storage.ts
 - src/progress/types.ts
@@ -668,7 +666,7 @@ JSON corrompido abre a Home normalmente.
 
 Status: completed
 Date: 2026-09-24
-Commits: `f3714ed` (UI), `39ab58f` (answers.ts)
+Commits: `44f4790` (UI), `dd81e41` (answers.ts)
 Files changed:
 - src/lesson/LessonPage.tsx, stepProps.ts, StepFooter.tsx, Lesson.css
 - src/lesson/steps/*StepView.tsx (8 arquivos)
@@ -723,7 +721,7 @@ Renderizar qualquer aula do modelo como sequência interativa e retomável.
 
 Status: completed
 Date: 2026-09-24
-Commit: `f3714ed`
+Commit: `44f4790`
 Files changed:
 - src/home/HomePage.tsx, Home.css, currentLesson.ts
 - src/styles/tokens.css, ui.css; index.html
@@ -750,7 +748,7 @@ WebKit 390px e 320px, sem overflow horizontal (checado em todos os passos).
 
 Status: completed (som não verificado)
 Date: 2026-09-24
-Commit: `f3714ed`
+Commit: `44f4790`
 Files changed:
 - src/lib/speech.ts
 - src/components/ListenButtons.tsx
@@ -774,7 +772,7 @@ Files changed:
 
 Status: completed
 Date: 2026-09-24
-Commits: `cde06e4` (gerador), `f3714ed` (tela)
+Commits: `4367b0a` (gerador), `44f4790` (tela)
 Files changed:
 - src/notes/lessonMarkdown.ts + test
 - src/notes/NotesPage.tsx, Notes.css
@@ -791,7 +789,7 @@ nota diz "Nenhum exercício registrado" — nunca estima.
 Tela: Copiar (`navigator.clipboard`), Baixar (`Blob` + `<a download>`),
 Compartilhar (`navigator.share`, só se existir — útil no iOS para mandar ao Obsidian).
 `__APP_VERSION__` vem do `package.json` via `define` no Vite (desde a
-TASK-015 inclui o commit: `0.1.0+885a96c`).
+TASK-015 inclui o commit: `0.1.0+825826f`).
 
 ### Validation
 
@@ -802,7 +800,7 @@ WebKit confere título e métricas na prévia. Copiar/baixar não testados no iP
 
 Status: completed
 Date: 2026-09-24
-Commit: `00525a1`
+Commit: `0c5c9d7`
 Files changed:
 - public/manifest.webmanifest, public/sw.js, public/*.png, public/favicon.svg
 - index.html, src/pwa/registerServiceWorker.ts, src/main.tsx
@@ -832,12 +830,12 @@ e nunca limpava bundles antigos — ver DEC-010.
 
 ## TASK-010 — Deploy no GitHub Pages via Actions
 
-Status: blocked
+Status: completed (push e habilitação do Pages feitos pelo usuário)
 Date: 2026-09-24
-Commit: `0a3c0be`
+Commit: `ecb9209`
 Files changed:
 - .github/workflows/deploy.yml
-- vite.config.ts (`base: './'`, em `f3714ed`)
+- vite.config.ts (`base: './'`, em `44f4790`)
 
 ### How it works
 
@@ -872,11 +870,26 @@ Verificado sem enviar nada:
   isso o passo manual (API ou interface web) em "Deploy Now".
 - Os comandos de "Deploy Now" nunca foram executados — são o plano, não um resultado.
 
+### Result (observado em 2026-09-25)
+
+O usuário fez o push e habilitou o Pages. Observado via `gh`/`curl`: run do
+push (`36132278468`) e run manual (`36132354025`) verdes; o push não falhou em
+`configure-pages`, então o Pages já estava habilitado antes do push;
+`https://mcruvinel.github.io/learning-french/` responde `HTTP/2 200` e o bundle
+contém `0.1.0+8558409`.
+
+Depois, a pedido do usuário, o histórico foi reescrito localmente
+(`git filter-branch --msg-filter`) para remover as linhas
+`Co-Authored-By: Claude` de todos os commits: mesmo conteúdo, hashes novos
+(esta memória já cita os hashes novos). Backup local:
+`backup/antes-de-remover-coautor`. Publicar exige `--force-with-lease`
+("Deploy Now").
+
 ## TASK-011 — Validação mobile e QA do fluxo completo
 
 Status: completed
 Date: 2026-09-24
-Commit: `6785783`
+Commit: `7c0c61d`
 Files changed:
 - scripts/qa-mobile.mjs
 
@@ -934,7 +947,7 @@ desnecessário. A próxima iteração nasce desse relato.
 
 Status: completed
 Date: 2026-09-25
-Commit: `5503487`
+Commit: `f264fee`
 Files changed:
 - src/lessons/lesson-01.ts
 - src/app/App.test.tsx (rótulo da opção de Bonjour)
@@ -989,7 +1002,7 @@ Não revisado por falante nativo.
 
 Status: completed
 Date: 2026-09-25
-Commits: `a4fa23c` (SW + QA), `885a96c` (id de build)
+Commits: `9432751` (SW + QA), `825826f` (id de build)
 Files changed:
 - public/sw.js
 - scripts/qa-mobile.mjs

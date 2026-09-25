@@ -15,7 +15,7 @@ Git, em [`MEMORY.md`](./MEMORY.md) e em [`docs/DECISIONS.md`](./docs/DECISIONS.m
 - Progresso salvo no aparelho: refresh e reabrir o app retomam no mesmo passo.
 - Notas da aula em Markdown para o Obsidian: copiar, baixar `.md`, compartilhar.
 - Instalável na tela de início do iPhone; reabre offline após a primeira visita.
-- Rodapé e notas mostram a versão com o commit do build (ex.: `0.1.0+885a96c`).
+- Rodapé e notas mostram a versão com o commit do build (ex.: `0.1.0+825826f`).
 
 ### Corrigido
 
