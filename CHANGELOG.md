@@ -15,6 +15,19 @@ Git, em [`MEMORY.md`](./MEMORY.md) e em [`docs/DECISIONS.md`](./docs/DECISIONS.m
 - Progresso salvo no aparelho: refresh e reabrir o app retomam no mesmo passo.
 - Notas da aula em Markdown para o Obsidian: copiar, baixar `.md`, compartilhar.
 - Instalável na tela de início do iPhone; reabre offline após a primeira visita.
+- Rodapé e notas mostram a versão com o commit do build (ex.: `0.1.0+885a96c`).
+
+### Corrigido
+
+- Aula 1: regras de pronúncia corrigidas — o “r” e o “l” finais são
+  pronunciados (bonjour, s'il); sílabas de peso quase igual em vez de “força na
+  última”; avisos contra hábitos do português (engolir o “r” final, “l” virando
+  “u”, nasais terminando em “u”/“i”).
+- Aula 1: Bonjour também é “boa tarde”; horário do Bonsoir ajustado para o
+  inverno; cena da escola de esqui com falas mais naturais
+  (“C'est à quel nom ?”).
+- Offline: uma página de erro ou de login de Wi-Fi não pode mais substituir o
+  app guardado no aparelho; versões antigas deixam de ocupar espaço.
 
 ## Fundação (C00)
 

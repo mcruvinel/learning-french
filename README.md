@@ -96,7 +96,8 @@ npm run verify    # typecheck + lint + testes + build — rode antes de commitar
 ```
 
 QA opcional em WebKit (motor do Safari) com viewport de iPhone, servindo o build
-num subpath estilo GitHub Pages:
+num subpath estilo GitHub Pages: percorre a Aula 1 a 390px e 320px, testa
+refresh, offline e um ciclo de release (build A instalado → build B publicado):
 
 ```sh
 (mkdir -p /tmp/pw && cd /tmp/pw && npm i playwright && npx playwright install webkit)
@@ -110,13 +111,19 @@ PLAYWRIGHT_FROM=/tmp/pw/ node scripts/qa-mobile.mjs [pasta-de-screenshots]
 publica `dist/` no GitHub Pages. Remote: `git@github.com:mcruvinel/learning-french.git`.
 URL esperada: `https://mcruvinel.github.io/learning-french/`.
 
-Primeira vez (Pages precisa estar configurado para "GitHub Actions"):
+Primeira publicação: Pages precisa estar configurado com a fonte "GitHub
+Actions". Os comandos exatos estão em [`MEMORY.md` → Deploy Now](./MEMORY.md#deploy-now).
 
-```sh
-git push -u origin main
-gh api -X POST repos/mcruvinel/learning-french/pages -f build_type=workflow
-gh workflow run deploy.yml   # se o primeiro run falhou antes de o Pages existir
-```
+Cada build mostra `versão+commit` (ex.: `0.1.0+885a96c`) no rodapé da Home e
+nas notas — é assim que se confere qual deploy o iPhone está rodando.
+
+### Service worker e releases
+
+`public/sw.js` mantém em cache um par consistente `index.html` + bundle. Com
+rede, a abertura do app busca o `index.html` novo (um release aparece na
+próxima abertura online); respostas ruins (404, redirect de Wi-Fi de hotel)
+nunca substituem o app em cache; bundles antigos são removidos. Se mudar a
+lógica de cache, trocar a constante `CACHE`. Detalhes: MEMORY.md, DEC-010.
 
 ## Instalação no iPhone
 

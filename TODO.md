@@ -1,6 +1,6 @@
 # Learning French — TODO
 
-Last updated: 2026-09-24 23:30
+Last updated: 2026-09-25
 
 Regras do projeto em [`CLAUDE.md`](./CLAUDE.md). O que aconteceu e por quê está
 em [`MEMORY.md`](./MEMORY.md).
@@ -281,14 +281,8 @@ Implementation notes:
 Result:
 - Workflow criado (`0a3c0be`), YAML válido, `npm ci` + `npm run verify` limpos numa cópia isolada, remote `origin` configurado.
 - **Bloqueado:** um hook local (`~/.claude/hooks/block-git-push.sh`) proíbe o Claude de enviar commits ao GitHub. Nada foi enviado e o Pages não foi habilitado.
-- Para desbloquear, rode você mesmo (5 min):
-  ```sh
-  git push -u origin main
-  gh api -X POST repos/mcruvinel/learning-french/pages -f build_type=workflow
-  gh workflow run deploy.yml
-  gh run watch
-  ```
-  Depois abra https://mcruvinel.github.io/learning-french/ e marque esta task `[x]`.
+- Preflight (2026-09-25): caminhos relativos, escopo do SW, manifest, hash routing, build em `/learning-french/`, offline, refresh e ciclo de release verificados localmente; SSH do usuário autentica; `origin` vazio.
+- **Para desbloquear:** rodar os comandos de [MEMORY.md → Deploy Now](./MEMORY.md#deploy-now). Marcar `[x]` só depois de ver o run verde e HTTP 200.
 
 Study reference:
 - MEMORY.md#task-010
@@ -355,14 +349,68 @@ Confirmar no aparelho o que o headless não consegue: áudio, teclado, instalaç
 e offline no Safari de verdade.
 
 Acceptance criteria:
-- abrir a URL no Safari e fazer a Aula 1 inteira
-- o botão Ouvir produz voz francesa (anotar qual voz / se precisou instalar)
-- o teclado não cobre o campo nem o botão na recuperação
-- Adicionar à Tela de Início; abrir em modo avião depois da primeira visita
-- Copiar Markdown e colar no Obsidian
+- os 10 itens do checklist em [MEMORY.md → TASK-013](./MEMORY.md#task-013--validação-no-iphone-real) marcados
+- relato: o que funcionou, o que foi difícil, o que pareceu desnecessário
 
 Study reference:
 - MEMORY.md#task-013
+
+---
+
+### TASK-014 — Revisão crítica do francês e do design da Aula 1
+
+Status: [x]
+Priority: P0
+Area: learning
+Depends on: TASK-003
+
+Goal:
+Um aprendiz de zero absoluto confia em cada regra. Revisar francês, naturalidade,
+pronúncia para brasileiro, notas culturais, traduções, respostas e cenários
+antes do primeiro uso real.
+
+Acceptance criteria:
+- cada frase, dica, tradução, exercício e cenário revisado
+- erros corrigidos sem aumentar a aula (continua com 12 frases)
+- cada correção registrada em MEMORY.md; decisão de design em DEC-009
+
+Result:
+- 15 correções (tabela em MEMORY.md#task-014). A mais importante: "consoantes
+  finais são mudas" contradizia bonjour/s'il; agora r e l finais soam, e as dicas
+  avisam das armadilhas brasileiras (r final engolido, l virando u, nasais com glide).
+- Cenário da escola de esqui usa "C'est à quel nom ?" (pergunta real de balcão).
+- Não revisado por falante nativo. Commit `5503487`.
+
+Study reference:
+- MEMORY.md#task-014
+
+---
+
+### TASK-015 — Service worker consistente entre releases + id de build
+
+Status: [x]
+Priority: P0
+Area: PWA
+Depends on: TASK-009
+
+Goal:
+Vários releases virão. Um deploy novo não pode deixar o app preso numa versão
+velha ou quebrada no iPhone, inclusive em Wi-Fi de hotel.
+
+Acceptance criteria:
+- só uma resposta 200 HTML, sem redirect, vira o shell offline
+- shell sempre consistente: bundle em cache antes do index.html
+- bundles antigos removidos do cache
+- ciclo de release testado, e o teste falha no SW antigo
+- a versão exibida identifica o build
+
+Result:
+- `refreshShell()` + `isGoodShell()` em `public/sw.js`; cache `v2`.
+- Fase de release no `scripts/qa-mobile.mjs`: passa no novo SW, falha em 3 checks no antigo.
+- Rodapé e notas mostram `0.1.0+<commit>`. Commits `a4fa23c`, `885a96c`.
+
+Study reference:
+- MEMORY.md#task-015
 
 ---
 
@@ -398,6 +446,6 @@ autônoma de 2026-09-24, a pedido do usuário. Mapeamento:
 | C02 — Pipeline Markdown | adiada | "Fora da v0.1"; DEC-002 |
 | C03 — Frases, listening, progresso | parcial | TASK-004, TASK-007 |
 | C04 — Fluxo de revisão | adiada | "Fora da v0.1" |
-| C05 — PWA e GitHub Pages | PWA feito; deploy bloqueado | TASK-009, TASK-010, TASK-013 |
+| C05 — PWA e GitHub Pages | PWA feito e endurecido; deploy bloqueado | TASK-009, TASK-010, TASK-013, TASK-015 |
 | C06 — Baseline S01 | adiada | "Fora da v0.1" |
 | C07+ — Iterações por evidência | contínuo | regra geral do backlog |

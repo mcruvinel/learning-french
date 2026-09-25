@@ -1,88 +1,102 @@
+# Deploy Now
+
+```bash
+cd <raiz do repositório>
+git status                      # esperado: "nothing to commit, working tree clean"
+git push -u origin main
+gh api -X POST repos/mcruvinel/learning-french/pages -f build_type=workflow
+#   se der 403: https://github.com/mcruvinel/learning-french/settings/pages → Source: "GitHub Actions"
+gh workflow run deploy.yml --ref main
+#   se der 403: https://github.com/mcruvinel/learning-french/actions → "Deploy to GitHub Pages" → Run workflow
+```
+
+- URL pública: https://mcruvinel.github.io/learning-french/
+- Acompanhar o run:
+  `gh run list --workflow deploy.yml --limit 3` e
+  `gh run watch --exit-status $(gh run list --workflow deploy.yml --limit 1 --json databaseId -q '.[0].databaseId')`
+- Verificar HTTP 200: `curl -sI https://mcruvinel.github.io/learning-french/ | head -1`
+- Sucesso =
+  - o run disparado pelo push pode falhar em `configure-pages` (o Pages ainda não existia) — esperado;
+  - o run seguinte fica verde nos jobs `build` e `deploy`;
+  - o `curl` responde `HTTP/2 200` (pode levar 1–2 min após o deploy);
+  - no rodapé da Home aparece `v0.1.0+<hash>` igual a `git rev-parse --short HEAD`.
+
+Depois: marcar TASK-010 `[x]` no TODO.md e fazer o checklist do iPhone (TASK-013, mais abaixo).
+
+---
+
 # Morning Report
+
+> Atualizado em 2026-09-25 (sessão de endurecimento da v0.1). A sessão anterior
+> (2026-09-24) construiu a v0.1; esta revalidou, revisou a aula e endureceu o
+> service worker. Nenhuma feature nova de produto.
 
 ## TL;DR
 
-A v0.1 está pronta **localmente**: Aula 1 interativa completa (24 passos), progresso
-salvo no aparelho, notas Markdown para o Obsidian, PWA com offline, 34 testes
-automatizados passando e a aula inteira percorrida em WebKit (motor do Safari)
-a 390px e 320px. **Não está publicada**: um hook local do seu `~/.claude` proíbe
-o Claude de enviar commits ao GitHub. O workflow do Pages e o remote estão
-prontos; faltam três comandos seus (abaixo).
+A v0.1 continua pronta **localmente** e agora está mais correta e mais segura
+para releases futuros: a Aula 1 foi revisada (regras de pronúncia que
+contradiziam a própria aula foram corrigidas), o service worker não pode mais
+transformar um 404 ou uma página de Wi-Fi de hotel no "app offline", e o
+rodapé mostra o commit do build. **Continua não publicada**: o Claude não pode
+enviar commits (hook local). Comandos em "Deploy Now".
 
 ## What I can do now
 
-- Rodar `npm run dev` e fazer a Aula 1 inteira no navegador.
-- Depois de rodar os comandos de deploy: abrir no iPhone, instalar na tela de
-  início, fazer a aula, copiar as notas para o Obsidian.
+- Rodar os comandos de "Deploy Now" (≈5 min).
+- Depois, no iPhone, executar o checklist da TASK-013.
 
 ## What was completed
 
-- TASK-001 — Inspeção do repositório, TODO.md por tasks, MEMORY.md
-- TASK-002 — Modelo de conteúdo de aula (tipos + testes de integridade)
-- TASK-003 — Conteúdo da Aula 1 « Bonjour, je m'appelle Matheus »
-- TASK-004 — Persistência local versionada e tolerante a dados ruins
-- TASK-005 — Player de aula + checagem de resposta digitada
-- TASK-006 — Home e shell mobile
-- TASK-007 — Áudio com `speechSynthesis` (som não verificado — headless)
-- TASK-008 — Notas Markdown para Obsidian (copiar / baixar / compartilhar)
-- TASK-009 — PWA mínimo (offline verificado em WebKit)
-- TASK-011 — QA ponta a ponta em WebKit com viewport de iPhone
-- TASK-012 — README, CHANGELOG, DECISIONS, CLAUDE.md
+Sessão 2026-09-25:
+- TASK-014 — Revisão crítica do francês e do design da Aula 1
+- TASK-015 — Service worker consistente entre releases + id de build visível
+- TASK-010 (parcial) — preflight completo do deploy; continua [!] bloqueada
+
+Sessão 2026-09-24:
+- TASK-001 a TASK-009, TASK-011, TASK-012 (ver registros abaixo)
 
 ## What remains
 
-- TASK-010 — Deploy no GitHub Pages: **[!] bloqueado** (push proibido para o Claude)
-- TASK-013 — Validação no iPhone real (áudio, teclado, instalação, Obsidian)
+- TASK-010 — Deploy: **[!] bloqueado** até você rodar "Deploy Now"
+- TASK-013 — Checklist no iPhone real (humano)
 
 ## Deployment
 
-Repository: `git@github.com:mcruvinel/learning-french.git` (remote `origin` configurado; repo remoto ainda vazio)
+Repository: `git@github.com:mcruvinel/learning-french.git` (público, vazio; SSH do seu usuário autenticado)
 Branch: `main`
-Commit: ver `git log -1` (o último é o commit de documentação desta sessão)
-GitHub Pages: esperado em https://mcruvinel.github.io/learning-french/
-Deployment status: **não publicado**. Comandos para publicar:
-
-```sh
-git push -u origin main
-gh api -X POST repos/mcruvinel/learning-french/pages -f build_type=workflow
-gh workflow run deploy.yml     # o 1º run do push pode falhar se o Pages ainda não existia
-gh run watch
-curl -sI https://mcruvinel.github.io/learning-french/ | head -1   # espera 200
-```
+Commit: HEAD de `main` (`git log -1`) — o hash aparece no rodapé do app publicado
+GitHub Pages: https://mcruvinel.github.io/learning-french/ (ainda não habilitado)
+Deployment status: **não publicado — não observado**
 
 ## Validation
 
-Build: ✅ `npm run build` — 305 kB JS (96 kB gzip), 13 kB CSS
-Tests: ✅ 34 testes em 5 arquivos (Vitest + jsdom)
-Lint: ✅ oxlint sem avisos
+Build: ✅ `npm ci` limpo + `npm run build` (305 kB JS / 96 kB gzip)
+Tests: ✅ 34 testes (Vitest + jsdom)
+Lint: ✅ oxlint, sem avisos
 Typecheck: ✅ `tsc -b` estrito
-Mobile: ✅ WebKit (Playwright) com perfil iPhone 13 (390px) e 320px: 24 passos, sem overflow horizontal, sem erro de JS. ⚠️ Não testado num iPhone físico.
-Persistence: ✅ refresh no meio da aula retoma no mesmo passo com a resposta (teste jsdom + WebKit); JSON corrompido não quebra o app.
-PWA: ✅ manifest + service worker; offline verificado em WebKit parando o servidor. ⚠️ "Adicionar à Tela de Início" não verificado.
-GitHub Pages: ⚠️ build servido localmente em `/learning-french/` funciona; `npm ci && npm run verify` limpos numa cópia isolada (simula o CI). Deploy real não aconteceu.
+Mobile: ✅ WebKit, perfil iPhone 13 (390px) e 320px, 24 passos, sem overflow, sem erros de JS. ⚠️ iPhone físico não testado.
+Persistence: ✅ refresh no meio retoma o passo (jsdom + WebKit); JSON corrompido não quebra.
+PWA: ✅ offline com servidor parado; ✅ ciclo de release A→B (B carrega online, bundle de A removido do cache, 404 cai no shell em cache, B abre offline). ⚠️ "Adicionar à Tela de Início" não verificado.
+GitHub Pages: ✅ build servido em `/learning-french/` passa todo o QA; caminhos relativos; SW com escopo `/learning-french/`; YAML do workflow válido. ❌ Deploy real não observado.
 
 ## Important decisions
 
-- DEC-001 — Adotar o repo vazio `learning-french` como remote
-- DEC-002 — Aula como conteúdo TypeScript tipado; pipeline Markdown adiado
-- DEC-003 — Um único objeto em localStorage + parse defensivo
-- DEC-004 — `base: './'` em vez de `/learning-french/`
-- DEC-005 — Service worker escrito à mão, sem Workbox
-- DEC-006 — Fala autoconfirmada, sem reconhecimento de voz
-- DEC-007 — Resposta digitada: acento/apóstrofo/1 erro contam como acerto
-- DEC-008 — Playwright fora das dependências do projeto
+- DEC-009 — Dicas de pronúncia miram as armadilhas do falante brasileiro (novo)
+- DEC-010 — O shell offline é sempre um par consistente index.html + bundle (novo)
+- DEC-002 — Aula como conteúdo TypeScript tipado
+- DEC-004 — `base: './'`
+- DEC-005 — Service worker escrito à mão
 
 ## Read these tasks to study today's implementation
 
-1. TASK-002 — como o modelo de conteúdo separa aula de UI
-2. TASK-004 — persistência versionada e parse defensivo
-3. TASK-005 — o player, o contrato `StepProps` e a checagem de respostas
-4. TASK-009 — o service worker e o que "offline" significa aqui
+1. TASK-015 — por que um service worker "network-first" ainda pode prender o app num estado ruim
+2. TASK-014 — o que estava errado na aula e por quê
+3. TASK-009 — o service worker original, para comparar
 
 ## Recommended next action
 
-Rodar os comandos de deploy acima e, no iPhone, fazer a Aula 1 de verdade
-(TASK-013) — anotando no campo "Anotação" do recap o que travou.
+Rodar "Deploy Now" e fazer a Aula 1 no iPhone seguindo o checklist da TASK-013.
+A próxima iteração do produto só será decidida depois do seu relato.
 
 ---
 
@@ -94,8 +108,8 @@ Rodar os comandos de deploy acima e, no iPhone, fazer a Aula 1 de verdade
 
 ## Current state
 
-Last updated: 2026-09-24 23:40
-Current version: 0.1.0
+Last updated: 2026-09-25
+Current version: 0.1.0 (o build mostra `0.1.0+<commit>`)
 Deployment: não publicado (TASK-010 bloqueada)
 Current lesson: Aula 1 — « Bonjour, je m'appelle Matheus » (conteúdo pronto)
 Main stack: React 19 · TypeScript estrito · Vite 8 · react-router (hash) · Vitest · oxlint · CSS puro · localStorage
@@ -111,15 +125,23 @@ Main stack: React 19 · TypeScript estrito · Vite 8 · react-router (hash) · V
 - Notas Markdown com métricas reais; seções na ordem pedida.
 - Build de produção funciona servido em subpath (`/learning-french/`).
 - Service worker controla a página e serve o app com o servidor parado.
+- Ciclo de release simulado (build A instalado → build B publicado): B carrega
+  online, o bundle de A sai do cache, um 404 cai no shell em cache, B abre offline.
 - `npm ci` + `npm run verify` limpos (simulação do CI).
+- SSH do usuário autentica no GitHub; `origin` está vazio (primeiro push simples).
 
 **Assumed** (razoável, não verificado):
 
 - `speechSynthesis` no Safari do iOS fala com voz francesa (`lang = 'fr-FR'`).
   Os botões aparecem no WebKit, mas nenhum som foi ouvido.
 - Copiar para a área de transferência e baixar `.md` funcionam no iOS Safari/PWA.
-- O workflow do GitHub Actions funciona no primeiro run (versões de actions
-  consultadas via API; YAML válido; nunca rodou).
+- O workflow do GitHub Actions funciona (versões de actions consultadas via
+  API; YAML válido; nunca rodou). O run disparado pelo primeiro push deve falhar
+  em `configure-pages` porque o Pages ainda não existe — por isso o
+  `gh workflow run` em "Deploy Now".
+- O token do `gh` é um PAT fine-grained sem acesso às configurações de Actions
+  (HTTP 403 ao ler permissões); pode também não conseguir habilitar o Pages.
+  "Deploy Now" traz o caminho pela interface web.
 - O ícone e o nome "Francês" aparecem bem na tela de início.
 
 **Blocked**:
@@ -129,7 +151,7 @@ Main stack: React 19 · TypeScript estrito · Vite 8 · react-router (hash) · V
 ### What is incomplete
 
 - Deploy e validação no iPhone real (TASK-010, TASK-013).
-- Francês da Aula 1 não revisado por falante nativo.
+- Francês da Aula 1 revisado criticamente (TASK-014), mas não por falante nativo.
 - Sem Aula 2: por decisão, o currículo vem do ChatGPT.
 
 ### Important constraints
@@ -147,7 +169,7 @@ Main stack: React 19 · TypeScript estrito · Vite 8 · react-router (hash) · V
 
 ### Next recommended action
 
-Publicar (comandos no Morning Report) e fazer a Aula 1 no iPhone (TASK-013).
+Rodar "Deploy Now" e fazer a Aula 1 no iPhone (checklist da TASK-013).
 
 ---
 
@@ -292,8 +314,8 @@ no `install`, o SW baixa `index.html` e extrai por regex os `./assets/*` que ele
 referencia.
 
 Tradeoffs:
-Assets de deploys antigos ficam no cache (poucos KB cada); `sw.js` não muda entre
-deploys, então o `activate` que limpa caches só roda quando `CACHE` for trocado.
+Assets de deploys antigos ficavam no cache (~300 kB cada) — **corrigido na
+TASK-015/DEC-010**, que também passou a rejeitar respostas ruins como shell.
 Navegação é network-first: com rede lenta, a abertura espera a rede.
 
 Revisit when:
@@ -361,6 +383,73 @@ baixaria ~100 MB de navegador sem necessidade.
 
 Tradeoffs:
 Rodar os scripts exige um passo manual de instalação (documentado no README).
+
+### DEC-009 — Dicas de pronúncia miram as armadilhas do falante brasileiro
+
+Date: 2026-09-25
+Related tasks: TASK-014
+
+Context:
+A primeira versão da Aula 1 descrevia sons de forma genérica ("consoantes finais
+são mudas", "força na última sílaba"). A revisão mostrou que as regras
+genéricas contradiziam palavras da própria aula (bonjou**r**, s'i**l**) e não
+avisavam dos erros que um brasileiro realmente comete.
+
+Options considered:
+1. Manter regras gerais curtas e deixar exceções para depois.
+2. Dicas escritas a partir dos erros previsíveis de quem fala português do Brasil.
+
+Decision:
+Opção 2. Cada dica diz o que fazer **e** qual hábito do português evitar:
+não engolir o "r" final ("falá"), "l" de fim de sílaba com a língua nos dentes
+(não "Brasiu"), vogais nasais sem o "u"/"i" final de "bom", "bem", "não", e
+sílabas de peso quase igual em vez de acento forte.
+
+Why:
+O aprendiz já tem um sistema fonológico. O erro mais provável não é "não saber
+o som", é transferir o hábito do português. Uma regra que o próprio conteúdo
+contradiz ensina a desconfiar das regras.
+
+Tradeoffs:
+Dicas um pouco mais longas. A aula não ganhou frases novas.
+
+Revisit when:
+O relato do uso real mostrar qual dica funcionou e qual confundiu.
+
+### DEC-010 — O shell offline é sempre um par consistente index.html + bundle
+
+Date: 2026-09-25
+Related tasks: TASK-015
+
+Context:
+O projeto terá vários releases. O service worker original (DEC-005) era
+network-first para a página, mas gravava **qualquer** resposta de navegação como
+`index.html` e gravava o HTML novo antes do bundle novo.
+
+Options considered:
+1. Trocar por Workbox / `vite-plugin-pwa`.
+2. Corrigir o SW à mão: validar a resposta e atualizar o shell de forma atômica.
+3. Tirar o service worker (sem offline).
+
+Decision:
+Opção 2. Uma função `refreshShell(html)` usada na instalação e após cada
+navegação boa: baixa os assets referenciados, só então grava o `index.html`, e
+remove bundles não referenciados. Só vira shell uma resposta 200, `text/html`,
+sem redirect.
+
+Why:
+Os bugs eram concretos e pequenos (demonstrados pelo QA contra o SW antigo);
+a correção é ~30 linhas. Workbox resolveria o precache, mas não a regra de
+"não aceitar uma página de portal como app", que precisaria ser escrita de
+qualquer forma.
+
+Tradeoffs:
+Num release novo, o bundle pode ser baixado duas vezes (pela página e pelo
+`refreshShell`). Um app aberto em segundo plano no iOS continua na versão
+carregada até ser relançado — o rodapé mostra qual build está rodando.
+
+Revisit when:
+O app passar a ter mais de um bundle (code splitting) ou assets grandes (áudio).
 
 ---
 
@@ -485,7 +574,8 @@ escuro → Bonsoir; apresentação completa).
   português ("o 'u' francês é um 'i' com lábios de 'u'"; "'oi' = 'uá'") em vez
   de reescrever o francês com letras do português. IPA aparece pequeno, opcional.
 - Quatro regras gerais: acento na última sílaba, consoantes finais mudas, "r" de
-  garganta, dígrafos oi/ou/au.
+  garganta, dígrafos oi/ou/au. **As duas primeiras estavam erradas ou enganosas
+  e foram corrigidas na TASK-014** (r/l finais soam; sílabas de peso igual).
 - Nota cultural: Bonjour ao entrar em loja é quase obrigatório.
 - Falas dos outros personagens usam francês que o aprendiz ainda não sabe
   ("Qu'est-ce que je vous sers ?", "Un euro vingt") com tradução escondida
@@ -700,7 +790,8 @@ Reflection (se houver), Next session, Project evidence. Sem dado registrado, a
 nota diz "Nenhum exercício registrado" — nunca estima.
 Tela: Copiar (`navigator.clipboard`), Baixar (`Blob` + `<a download>`),
 Compartilhar (`navigator.share`, só se existir — útil no iOS para mandar ao Obsidian).
-`__APP_VERSION__` vem do `package.json` via `define` no Vite.
+`__APP_VERSION__` vem do `package.json` via `define` no Vite (desde a
+TASK-015 inclui o commit: `0.1.0+885a96c`).
 
 ### Validation
 
@@ -736,6 +827,8 @@ hasheados; com o servidor HTTP **parado**, reload e deep link
 servidas pelo SW no WebKit ("internal error"). O teste de offline para o servidor
 de verdade em vez de emular.
 **Não verificado**: instalação no iPhone.
+**Revisado na TASK-015**: o SW desta task gravava qualquer resposta como shell
+e nunca limpava bundles antigos — ver DEC-010.
 
 ## TASK-010 — Deploy no GitHub Pages via Actions
 
@@ -765,6 +858,19 @@ contornar via API. Comandos para o usuário estão no Morning Report.
 
 YAML parseado; `npm ci` + `npm run verify` numa worktree limpa; build servido
 em `/learning-french/` passa no QA completo. Deploy real: não aconteceu.
+
+### Preflight (2026-09-25)
+
+Verificado sem enviar nada:
+- `dist/index.html` sem caminhos absolutos; SW registrado como `./sw.js`
+  (escopo `/learning-french/`); manifest com `start_url`/`scope` `./`.
+- Roteamento por hash: nenhuma rota chega ao servidor; refresh e deep link
+  funcionam online e offline.
+- Repo público, `default_branch` main, sem Pages, sem environments.
+- `git ls-remote origin` e `ssh -T git@github.com` funcionam com a chave do usuário.
+- O `configure-pages` não consegue habilitar o Pages com o `GITHUB_TOKEN`; por
+  isso o passo manual (API ou interface web) em "Deploy Now".
+- Os comandos de "Deploy Now" nunca foram executados — são o plano, não um resultado.
 
 ## TASK-011 — Validação mobile e QA do fluxo completo
 
@@ -805,11 +911,142 @@ atualizado para tasks com ID + MEMORY.md.
 
 ## TASK-013 — Validação no iPhone real
 
-Status: not started
+Status: not started (tarefa humana)
 Depends on: TASK-010
 
-O que o headless não prova: som do `speechSynthesis`, teclado sobre o campo de
-recuperação, "Adicionar à Tela de Início", offline em modo avião, colar no Obsidian.
+O que o headless não prova. Marque conforme for fazendo e anote o que falhar:
+
+- [ ] 1. Safari abre https://mcruvinel.github.io/learning-french/ e o rodapé mostra `v0.1.0+<hash>` do último commit.
+- [ ] 2. Compartilhar → **Adicionar à Tela de Início**: ícone "Fr." e nome "Francês" aparecem.
+- [ ] 3. Abrir pelo ícone: tela cheia, sem barra do Safari, topo não fica sob o notch/relógio.
+- [ ] 4. **Ouvir** em "Cortesia básica" produz voz **francesa** (anotar qual voz; com o botão de silencioso ligado também?).
+- [ ] 5. **Devagar** soa claramente mais lento e ainda natural.
+- [ ] 6. Recuperação: o teclado não cobre o campo nem o botão Verificar; "Retorno" envia; sem zoom na tela.
+- [ ] 7. No meio da aula, fechar o app (deslizar para cima) e reabrir: volta no mesmo passo.
+- [ ] 8. Terminar a Aula 1 inteira, marcar frases difíceis e escrever a anotação.
+- [ ] 9. Notas → **Copiar Markdown** → colar numa nota nova no Obsidian (testar também Compartilhar).
+- [ ] 10. Modo avião → abrir pelo ícone: a Home aparece com o progresso; entrar na aula funciona.
+
+Ao terminar, relatar: o que funcionou, o que foi difícil, o que pareceu
+desnecessário. A próxima iteração nasce desse relato.
+
+## TASK-014 — Revisão crítica do francês e do design da Aula 1
+
+Status: completed
+Date: 2026-09-25
+Commit: `5503487`
+Files changed:
+- src/lessons/lesson-01.ts
+- src/app/App.test.tsx (rótulo da opção de Bonjour)
+
+### Problem
+
+A Aula 1 foi escrita numa sessão autônoma sem revisão. Um aprendiz de zero
+absoluto confia em cada regra; um erro ali vira hábito de pronúncia.
+
+### What was reviewed
+
+Francês, naturalidade, utilidade prática, dicas de pronúncia para
+brasileiro, notas culturais, traduções, respostas dos exercícios, realismo dos cenários.
+
+### Corrections
+
+| Onde | Antes | Depois | Por quê |
+| --- | --- | --- | --- |
+| Regra geral | "Consoantes finais ficam mudas" | Mudas, **exceto r e l** finais | A regra fazia o aprendiz calar o r de bonjour/bonsoir/au revoir e o l de s'il |
+| Regra geral | "A força cai na última sílaba: mer-CI" | Sílabas de peso quase igual; a última um pouco mais longa | Francês não tem acento de palavra forte; "mer-CI" enfático soa estrangeiro |
+| "r" | Só dizia o que o r não é | Perto do "rr" de "carro", mais suave e com voz; nunca engolir o r final | Guia positivo + hábito brasileiro de engolir r final ("falá") |
+| "l" | Não mencionado | "l" com a língua nos dentes, nunca "u" ("Brasiu") | Vocalização do l é o erro brasileiro mais previsível em s'il, appelle, parle |
+| Nasais | "como 'om' de bom", "como 'em' de bem" | Mesma vogal, **sem** o "u"/"i" final (bõu, bẽi, não) | O português ditonga as nasais; o francês não |
+| Bonjour | "Bom dia / Olá" | "Olá / Bom dia / Boa tarde" | Usado até o fim da tarde; a nota já dizia isso |
+| Bonsoir | Horário fixo de escurecer | Troca por volta das 18h; no inverno já está escuro | O pôr do sol varia; a regra social é por volta das 18h |
+| brésilien | — | "bré" com "ê" fechado | Brasileiro tende a abrir para "bré" como "é" |
+| français | "an como em maçã" | Perto do "ã", com a boca mais aberta | [ɑ̃] é mais aberto e posterior que o "ã" |
+| Excusez-moi | — | Nota: no metrô, "Pardon" | É o que se ouve de fato para passar/esbarrar (nota, não frase nova) |
+| Nota cultural | — | "Bonjour, monsieur / madame" | A vendedora do cenário já usa; o aprendiz precisa reconhecer |
+| Cena da escola de esqui | "Vous vous appelez comment ?" | "C'est à quel nom ?" | É a pergunta real num balcão com reserva; serve para hotel e restaurante |
+| Cena da escola de esqui | "Enchantée ! Vous êtes d'où ?" | "Très bien. Vous venez d'où ?" | "Enchantée" após dar um nome de reserva soa estranho |
+| Cena da escola de esqui | "Demain, cours à neuf heures" | "Votre cours est demain à neuf heures" | Frase telegráfica → frase natural; "Pas de souci" é o mais comum hoje |
+| Feedback | "E ela vai falar mais devagar" | "Muitas vezes a pessoa passa a falar mais devagar" | Não prometer o que não se controla |
+
+Mantido de propósito: 12 frases; "Parlez-vous anglais ?" (a nota já cita
+"Vous parlez anglais ?", aceito na resposta digitada); "Tchau / Até logo" →
+Au revoir (no Brasil "tchau" serve com desconhecidos; Salut ficou fora por ser
+informal); apontar + "S'il vous plaît" na boulangerie (pedir pelo nome é da
+próxima aula).
+
+### Validation
+
+Testes de integridade e fluxo passam; QA WebKit percorre a aula nova a 390px e 320px.
+Não revisado por falante nativo.
+
+### Things learned
+
+- Uma regra simplificada que o próprio conteúdo contradiz é pior que nenhuma regra.
+- As armadilhas previsíveis vêm da língua materna (DEC-009), não da língua-alvo.
+
+## TASK-015 — Service worker consistente entre releases + id de build
+
+Status: completed
+Date: 2026-09-25
+Commits: `a4fa23c` (SW + QA), `885a96c` (id de build)
+Files changed:
+- public/sw.js
+- scripts/qa-mobile.mjs
+- vite.config.ts, src/vite-env.d.ts
+
+### Problem
+
+O projeto terá vários releases, usados no iPhone em redes ruins (hotel,
+montanha). Problemas concretos do SW original:
+1. Gravava qualquer resposta de navegação como `index.html`: um 404 durante um
+   deploy do Pages ou uma página de login de Wi-Fi viraria o "app offline".
+2. Com resposta ruim online, mostrava o erro em vez do shell em cache.
+3. Gravava o HTML novo antes do bundle novo: se a rede caísse no meio, o próximo
+   início offline teria HTML apontando para um bundle ausente (tela branca).
+4. Nunca removia bundles antigos (~300 kB por release).
+5. Não havia como saber qual build o celular estava rodando.
+
+### Solution
+
+- `refreshShell(html)`: baixa os assets que faltam, **depois** grava o
+  `index.html`, **depois** apaga assets em `/assets/` que o novo HTML não referencia.
+- `isGoodShell(response)`: só `ok`, sem `redirected`, `content-type` HTML.
+- Navegação: rede → se boa, devolve e atualiza o shell em segundo plano
+  (`event.waitUntil`); se falha ou é ruim, devolve o shell em cache.
+- `CACHE` passou para `learning-french-v2` (o `activate` apaga o v1).
+- `__APP_VERSION__` = `versão+commit curto` (`git rev-parse` no build;
+  `-dirty` se houver mudança não commitada). Aparece no rodapé e nas notas.
+
+### Key concepts
+
+- Ciclo de vida do SW: install → activate → fetch; `skipWaiting`, `clients.claim`
+- Consistência de cache: atualizar dependências antes do "ponteiro" (index.html)
+- `Response.redirected`, captive portals, network-first com validação
+
+### Why this approach
+
+Ver DEC-010. Também verificado: o navegador checa o `sw.js` sem cache HTTP
+(`updateViaCache: 'imports'` padrão), então mudar o `sw.js` num release futuro
+é detectado.
+
+### Validation
+
+Nova fase no `scripts/qa-mobile.mjs`: instala build A, "publica" build B
+(bundle novo, bundle de A apagado do servidor), recarrega online → B carregado,
+A fora do cache; servidor responde 404 → shell em cache; servidor parado → B
+offline. **Rodado contra o SW antigo, falha em 3 checks** (A não removido, 404
+substitui o app, B não abre offline porque o 404 virou o shell). Com o novo, passa.
+
+### Things learned
+
+- "Network-first" não basta: também é preciso decidir **qual** resposta de rede
+  merece virar o shell.
+- O teste de regressão só vale se falhar no código antigo — foi conferido.
+
+### Future improvements
+
+- Nenhuma agora. Se houver code splitting ou áudio gravado, revisar DEC-010.
 
 ---
 
@@ -826,4 +1063,8 @@ recuperação, "Adicionar à Tela de Início", offline em modo avião, colar no 
   pipeline Markdown (C02) adiados até as aulas reais pedirem.
 - **Limite do agente**: o deploy parou numa política local de segurança; o
   agente preparou tudo e devolveu a ação externa ao humano.
+- **Revisão que achou erro de ensino**: a regra "consoantes finais são mudas",
+  escrita pelo próprio agente, contradizia bonjour/s'il na mesma aula (TASK-014).
+- **Restrição de uso real → engenharia**: Wi-Fi de hotel com portal de login levou
+  a validar respostas no service worker (TASK-015).
 - Tamanho: ~2.900 linhas em `src/` (incl. testes e conteúdo); 3 dependências de runtime.
