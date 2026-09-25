@@ -11,10 +11,13 @@
 // reloads mid-lesson to check resume, checks horizontal overflow on every
 // step, completes the lesson, opens the notes, then stops its own static
 // server and reloads to check the service worker serves the app offline.
+// A last phase simulates a new release (build B) over an installed build A:
+// B must load on the next online launch, A's bundle must leave the cache, a
+// 404 must fall back to the cached shell, and B must then work offline.
 // (Playwright's context.setOffline() breaks service-worker navigations in
 // WebKit, so a real outage is used instead.)
 import { spawn } from 'node:child_process'
-import { cpSync, mkdtempSync } from 'node:fs'
+import { cpSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -195,10 +198,79 @@ async function run(deviceName, viewport) {
   return `${tag}: ${lesson01.steps.length} steps OK · ${offline}`
 }
 
+async function cachedAssets(page) {
+  return page.evaluate(async () => {
+    const out = []
+    for (const key of await caches.keys()) {
+      const cache = await caches.open(key)
+      for (const r of await cache.keys()) {
+        const path = new URL(r.url).pathname
+        if (path.includes('/assets/')) out.push(path.split('/').pop())
+      }
+    }
+    return out
+  })
+}
+
+async function updateCycle() {
+  const before = problems.length
+  const appDir = join(siteRoot, 'learning-french')
+  const indexPath = join(appDir, 'index.html')
+  const htmlA = readFileSync(indexPath, 'utf8')
+  const jsA = htmlA.match(/assets\/(index-[^"]+\.js)/)[1]
+
+  const browser = await webkit.launch()
+  const context = await browser.newContext({ ...devices['iPhone 13'] })
+  const page = await context.newPage()
+  await page.goto(BASE)
+  await page.evaluate(() => navigator.serviceWorker.ready)
+  await page.reload()
+  check((await cachedAssets(page)).includes(jsA), 'update: build A bundle not cached')
+
+  // "Deploy" build B: a new bundle name (as a content change would produce)
+  // with a marker, and A's bundle removed from the server.
+  const jsB = 'index-QABUILDB.js'
+  writeFileSync(join(appDir, 'assets', jsB), readFileSync(join(appDir, 'assets', jsA), 'utf8') + '\nwindow.__qaBuild = "B";\n')
+  rmSync(join(appDir, 'assets', jsA))
+  writeFileSync(indexPath, htmlA.replace(jsA, jsB))
+
+  await page.reload()
+  await page.getByRole('link', { name: /Aula 1/ }).first().waitFor({ timeout: 5000 })
+  check((await page.evaluate(() => window.__qaBuild)) === 'B', 'update: build B not loaded after online reload')
+  let assets = []
+  for (let i = 0; i < 50; i++) {
+    assets = await cachedAssets(page)
+    if (assets.includes(jsB) && !assets.includes(jsA)) break
+    await new Promise((r) => setTimeout(r, 100))
+  }
+  check(assets.includes(jsB), 'update: build B bundle not cached')
+  check(!assets.includes(jsA), 'update: stale build A bundle not pruned')
+
+  // Pages hiccup: the server answers 404 for the page -> cached shell, not an error page.
+  renameSync(indexPath, `${indexPath}.off`)
+  await page.goto(`${BASE}index.html#/`)
+  const survived404 = await page.getByRole('link', { name: /Aula 1/ }).first().isVisible()
+  check(survived404, 'update: a 404 navigation replaced the app')
+  renameSync(`${indexPath}.off`, indexPath)
+
+  await stopServer()
+  await page.reload()
+  await page.getByRole('link', { name: /Aula 1/ }).first().waitFor({ timeout: 5000 }).catch(() => {})
+  check((await page.evaluate(() => window.__qaBuild)) === 'B', 'update: build B not served offline')
+  await startServer()
+
+  await browser.close()
+  writeFileSync(indexPath, htmlA)
+  return problems.length === before
+    ? 'release update: B loaded online, A pruned, 404 → cached shell, B offline OK'
+    : 'release update: FAILED (see problems)'
+}
+
 await startServer()
 const results = []
 results.push(await run('iPhone 13'))
 results.push(await run('iPhone SE', { width: 320, height: 568 }))
+results.push(await updateCycle())
 await stopServer()
 console.log(results.join('\n'))
 if (problems.length) {
