@@ -1,12 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { App } from './app/App'
+import { ProgressProvider } from './progress/ProgressProvider'
 import './styles/global.css'
+import './styles/ui.css'
 
 /**
  * Hash routing is deliberate: GitHub Pages serves static files only, so a
- * refresh on a path like /sessions would 404. Hashes never reach the server.
+ * refresh on a path like /lesson/lesson-01 would 404. Hashes never reach the
+ * server.
  */
 const rootElement = document.getElementById('root')
 if (!rootElement) {
@@ -16,9 +19,9 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <HashRouter>
-      <Routes>
-        <Route path="*" element={<App />} />
-      </Routes>
+      <ProgressProvider>
+        <App />
+      </ProgressProvider>
     </HashRouter>
   </StrictMode>,
 )

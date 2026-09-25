@@ -1,0 +1,117 @@
+.home {
+  gap: var(--space-6);
+}
+
+.home-header {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-6);
+}
+
+.home-title {
+  font-size: var(--text-3xl);
+}
+
+.home-status {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.home-status > div {
+  padding: var(--space-4) 0;
+}
+
+.home-status > div + div {
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+}
+
+.home-status__value {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-status__label {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.lesson-card {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.lesson-card__title {
+  font-size: var(--text-2xl);
+}
+
+.lesson-card__progress {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.lesson-card__meta {
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+}
+
+.lesson-card__actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.home-section-title {
+  margin-bottom: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.done-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.done-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.done-item > span:first-child {
+  display: grid;
+}
+
+.done-item__num {
+  color: var(--color-known);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.home-next {
+  font-size: var(--text-sm);
+}
+
+.home-footer {
+  margin-top: auto;
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+}

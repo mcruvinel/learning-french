@@ -1,27 +1,17 @@
-import './App.css'
+import { Route, Routes } from 'react-router-dom'
+import { HomePage } from '../home/HomePage'
+import { LessonPage } from '../lesson/LessonPage'
+import { NotesPage } from '../notes/NotesPage'
+import { NotFound } from './NotFound'
 
-/**
- * C00 app shell. Navigation and the real screens arrive in C01; this only
- * proves the stack, the visual tokens and hash routing are wired correctly.
- */
+/** Routes live under the URL hash (#/lesson/lesson-01), see main.tsx. */
 export function App() {
   return (
-    <main className="app">
-      <p className="app__eyebrow">Learning French</p>
-      <h1 className="app__title">Bonjour !</h1>
-      <p className="app__subtitle">Do zero, uma sessão por vez.</p>
-
-      <section className="app__card">
-        <h2>Fundação técnica pronta</h2>
-        <p>
-          React, TypeScript estrito, Vite e Vitest configurados. As telas Hoje,
-          Sessões, Frases, Revisão e Progresso chegam na sessão C01.
-        </p>
-      </section>
-
-      <p className="app__footer">
-        Un petit pas chaque jour.
-      </p>
-    </main>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/lesson/:lessonId" element={<LessonPage />} />
+      <Route path="/lesson/:lessonId/notes" element={<NotesPage />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   )
 }
